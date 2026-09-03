@@ -1,0 +1,13 @@
+V24 Adventure Map Refresh
+- Replaced all 9 adventure area map images with the regenerated set.
+- Preserved existing filenames so the game uses the new art without code changes.
+Mapping:
+  zone1_area1 -> lush_forest_valley_adventure_map.png
+  zone1_area2 -> sunlit_forest_medieval_village.png
+  zone1_area3 -> winding_alpine_pass_through_rocky_cliffs.png
+  zone2_area1 -> lush_forest_paths_and_shimmering_stream.png
+  zone2_area2 -> emerald_valley_to_emberwild.png
+  zone2_area3 -> burning_forest_mountain_passage.png
+  zone3_area1 -> verdant_forest_trail_map.png
+  zone3_area2 -> burning_forest_by_the_emerald_river.png
+  zone3_area3 -> volcanic_wasteland_ritual_stronghold.png

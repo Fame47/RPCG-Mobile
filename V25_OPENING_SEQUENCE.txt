@@ -1,0 +1,9 @@
+V25 Opening Sequence
+- Uses the supplied NERDY Games logo first.
+- Then shows the supplied 1080x1920 splash_screen.jpg.
+- Adds a real HTML EMBARK button over the splash.
+- EMBARK fades the splash to black.
+- Uses hammer_arm.png, logo_base.png, and spark.png as separate aligned layers.
+- Hammer fades/falls into place, strikes, reveals the base with glow, shakes the screen,
+  then settles into a 2.5 second slow breathing zoom before revealing the main menu.
+- No new artwork was generated for the HTML implementation.

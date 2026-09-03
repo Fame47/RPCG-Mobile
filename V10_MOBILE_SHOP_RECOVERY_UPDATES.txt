@@ -1,0 +1,10 @@
+RPCG MOBILE ADVENTURE - V10 MOBILE SHOP + RECOVERY UPDATE
+
+- Healed decks now leave the recovery bed automatically as soon as healing finishes.
+- A deck in recovery cannot be selected for battle or edited in Equipment; its reserved deck cards remain unavailable until healing completes.
+- Removed the redundant standalone BUY button from rotating shop stock. Buying remains on each card's detail modal.
+- Booster shelf displays now pulse/glow permanently on touch devices: white for 3/5-card boosters, yellow for Starter Decks.
+- Booster product menus no longer show the 5-card rule / potion rule paragraph.
+- 5-card booster art/title/open-card callout enlarged.
+- Shop product balance totals enlarged.
+- Starter Decks now cost 5 Silver. Tapping a starter first shows the full 20-card list and a dedicated BUY button.

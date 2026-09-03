@@ -14,6 +14,27 @@
   <div id="rotateNotice" aria-hidden="true"></div>
 
   <main id="game" data-screen="menu" aria-label="RPCG portrait card game">
+    <div id="startupIntro" class="startup-intro" aria-label="RPCG opening sequence">
+      <section id="nerdyIntroStage" class="intro-stage nerdy-intro-stage active" aria-hidden="false">
+        <div class="nerdy-intro-glow" aria-hidden="true"></div>
+        <img class="nerdy-intro-logo" src="assets/intro/nerdy_games.png" alt="NERDY Games">
+      </section>
+
+      <section id="gameSplashStage" class="intro-stage game-splash-stage" aria-hidden="true">
+        <img class="game-splash-art" src="assets/intro/splash_screen.jpg" alt="RPCG heroes battling goblins">
+        <div class="game-splash-vignette" aria-hidden="true"></div>
+        <button id="embarkButton" class="embark-button" type="button"><span>EMBARK</span></button>
+      </section>
+
+      <section id="forgeIntroStage" class="intro-stage forge-intro-stage" aria-hidden="true">
+        <div id="forgeAssembly" class="forge-intro-assembly" aria-hidden="true">
+          <img id="forgeIntroBase" class="forge-intro-layer forge-intro-base" src="assets/intro/logo_base.png" alt="">
+          <div id="forgeIntroGlow" class="forge-intro-glow"></div>
+          <img id="forgeIntroSpark" class="forge-intro-layer forge-intro-spark" src="assets/intro/spark.png" alt="">
+          <img id="forgeIntroHammer" class="forge-intro-layer forge-intro-hammer" src="assets/intro/hammer_arm.png" alt="">
+        </div>
+      </section>
+    </div>
     <section id="menuScreen" class="screen active menu-screen" data-screen="menu" aria-label="Main menu">
       <img class="screen-bg" src="assets/backgrounds/menu_mobile.png" alt="">
       <div class="screen-shade menu-shade"></div>
@@ -59,8 +80,7 @@
       <div class="heal-room-vignette"></div>
       <button class="heal-back" type="button" data-go="menu">← BACK</button>
       <div class="heal-room-copy">
-        <b>DECK RECOVERY</b>
-        <span>1 deck heals in 30 seconds • a second active deck takes 60 seconds</span>
+        <span>1 DECK HEALS IN 30 SECONDS • A SECOND ACTIVE DECK TAKES 60 SECONDS</span>
       </div>
       <div id="healStations" class="heal-stations" aria-label="Recovery beds"></div>
 
@@ -184,7 +204,7 @@
       <section class="shop-stock-panel" aria-label="Stocked cards">
         <div class="blueprint-label"><span>STOCKED CARDS</span><small>NEW IN <b id="merchantTimer">5:00</b></small></div>
         <div id="merchantStock" class="shop-stock-list"></div>
-        <button id="merchantBuySelected" class="mockup-action" type="button">BUY</button>
+        <div class="shop-rotation-timer" aria-live="polite"><span>NEW STOCK IN</span><b id="merchantTimerPanel">5:00</b></div>
       </section>
 
       <section class="shop-sell-panel" aria-label="Sell a spare card">
@@ -251,7 +271,8 @@
         <p>EQUIP CARDS, TUNE DECK AND INSPECT THEM</p>
       </header>
 
-      <div class="blueprint-currency equipment-currency"><span>BRONZE</span><b id="equipmentBronze">0</b><small>DECK <i id="equipmentDeckCount">0</i>/20</small></div>
+      <div class="blueprint-currency equipment-currency"><span>BRONZE</span><b id="equipmentBronze">0</b></div>
+      <div class="blueprint-currency equipment-deck-counter"><span>DECK</span><b><i id="equipmentDeckCount">0</i><em>/20</em></b></div>
 
       <div id="equipmentHeroRail" class="equipment-hero-rail" aria-label="Hero decks">
         <button type="button" class="locked" data-hero-filter="mage"><img src="assets/heroes/mage_card.webp" alt="Mage hero card"><span>MAGE</span></button>
@@ -386,9 +407,11 @@
 
   <audio id="marketMusic" src="assets/audio/bazaar_market_loop.mp3" loop preload="auto"></audio>
   <audio id="battleRhythmAudio" src="assets/audio/battle_rhythm_encounter.mp3" preload="auto"></audio>
+  <audio id="adventureBossMusic" src="assets/audio/adventure_boss_loop.mp3" loop preload="auto"></audio>
 
   <script>window.__RPCG_ENABLE_TESTS__ = true; window.__RPCG_FAST_TESTS__ = false;</script>
   <script src="game.js"></script>
   <script src="adventure.js"></script>
+  <script src="startup.js"></script>
 </body>
 </html>

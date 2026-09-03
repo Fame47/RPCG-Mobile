@@ -12,7 +12,7 @@
     sword_strike: { name:'Sword Strike', hero:'knight', type:'skill', forgeable:true, ranks:{ bronze:{cost:0,damage:10,damagePerLevel:2}, silver:{cost:0,damage:15,damagePerLevel:3}, gold:{cost:0,damage:20,damagePerLevel:4} }, summary:'A dependable level-scaled sword attack.' },
     shield_block: { name:'Shield Block', hero:'knight', type:'skill', forgeable:true, ranks:{ bronze:{cost:0,blockNext:true,heal:10}, silver:{cost:10,blockNext:true,heal:15}, gold:{cost:12,blockNext:true,heal:25,healPerLevel:3} }, summary:'Block the next enemy attack and restore Health.' },
     shield_bash: { name:'Shield Bash', hero:'knight', type:'skill', forgeable:true, ranks:{ bronze:{cost:10,damage:10,damagePerLevel:2,stunChance:.25}, silver:{cost:12,damage:15,damagePerLevel:3,stunChance:.35}, gold:{cost:14,damage:25,damagePerLevel:4,stunChance:.5} }, summary:'Level-scaled damage with a chance to Stun.' },
-    sword_combo: { name:'Sword Combo', hero:'knight', type:'skill', forgeable:true, ranks:{ bronze:{cost:15,damage:10,damagePerLevel:2,combo:true}, silver:{cost:16,damage:15,damagePerLevel:3,combo:true,drawCombo:true}, gold:{cost:18,damage:20,damagePerLevel:4,combo:true,drawCombo:true} }, summary:'Deal damage and empower the next Skill.' },
+    sword_combo: { name:'Sword Combo', hero:'knight', type:'skill', forgeable:true, ranks:{ bronze:{cost:15,damage:10,damagePerLevel:2,combo:true}, silver:{cost:16,damage:15,damagePerLevel:3,combo:true,drawCombo:true}, gold:{cost:18,damage:20,damagePerLevel:4,combo:true,drawCombo:true} }, summary:'Build a Sword Combo chain. A different damaging Skill cashes out for double damage; the third Sword Combo deals triple damage and ends the chain.' },
     iron_resolve: { name:'Iron Resolve', hero:'knight', type:'boost', forgeable:true, ranks:{ bronze:{cost:0,mana:10,cleanse:true}, silver:{cost:0,mana:15,cleanse:true,draw:1}, gold:{cost:0,mana:20,cleanse:true,draw:1} }, summary:'Clear status effects and restore Mana.' },
     steady_stance: { name:'Steady Stance', hero:'knight', type:'boost', forgeable:true, ranks:{ bronze:{cost:0,steady:true,mana:0}, silver:{cost:0,steady:true,mana:5,manaPerLevel:2}, gold:{cost:0,steady:true,mana:5,manaPerLevel:3} }, summary:'Put 2 cards on the bottom of your deck, then draw 3.' },
     rising_slash: { name:'Rising Slash', hero:'knight', type:'skill', forgeable:true, ranks:{ bronze:{cost:14,damage:15,damagePerLevel:2,bleedChance:.5,bleedTurns:3,bleedDamage:5}, silver:{cost:16,damage:25,damagePerLevel:3,bleedChance:.6,bleedTurns:3,bleedDamage:7}, gold:{cost:18,damage:35,damagePerLevel:4,bleedChance:.7,bleedTurns:3,bleedDamage:10} }, summary:'Level-scaled damage with a Bleed chance.' },
@@ -92,8 +92,8 @@
   const shopProductConfig = {
     booster3: { title: '3-Card Booster Pack', subtitle: 'Three random cards', cost: { bronze: 250 }, image: 'assets/products/booster_3card.png', size: 3 },
     booster5: { title: '5-Card Gold Booster Pack', subtitle: 'One Silver guaranteed', cost: { silver: 1 }, image: 'assets/products/booster_5card.png', size: 5 },
-    starters: { title: 'Starter Decks', subtitle: 'Choose any 20-card hero deck', cost: { silver: 10 } },
-    exchange: { title: 'Bronze & Silver Exchange', subtitle: 'Convert currency at a fixed 500 Bronze = 1 Silver rate.' }
+    starters: { title: 'Starter Decks', subtitle: 'Choose any 20-card hero deck', cost: { silver: 5 } },
+    exchange: { title: 'Money Exchange', subtitle: '' }
   };
   const EXCHANGE_BRONZE_PER_SILVER = 500;
 
@@ -168,6 +168,7 @@
       heroProgress: { knight:{level:1,xp:0}, mage:{level:1,xp:0}, warrior:{level:1,xp:0}, healer:{level:1,xp:0} },
       merchantStartedAt: Date.now(),
       openedPacks: { booster3: 0, booster5: 0 },
+      merchantPurchaseLedger: {},
       starterDecks: { mage: 0, knight: 1, healer: 0, warrior: 0 },
       heroCollections: { mage: {}, knight: {}, healer: {}, warrior: {} },
       owned: {
@@ -266,6 +267,7 @@
         deck: { ...base.deck, ...(data.deck || {}) },
         audio: { ...base.audio, ...(data.audio || {}) },
         openedPacks: { ...base.openedPacks, ...(data.openedPacks || {}) },
+        merchantPurchaseLedger: { ...base.merchantPurchaseLedger, ...(data.merchantPurchaseLedger || {}) },
         starterDecks: { ...base.starterDecks, ...(data.starterDecks || {}) },
         heroCollections: {
           mage: { ...base.heroCollections.mage, ...(data.heroCollections?.mage || {}) },
@@ -319,19 +321,25 @@
   let forgeTypeFilter = 'all';
   let audioUnlocked = false;
   let sfxContext = null;
-  const musicFadeTimers = { market: null, battle: null };
+  const musicFadeTimers = { market: null, battle: null, boss: null };
+  let adventureBossMusicActive = false;
 
   function clamp01(value) { return Math.max(0, Math.min(1, Number(value) || 0)); }
   function syncAudioUI() {
     save.audio ||= { music:.55, sfx:.75, muted:false };
     if (typeof save.audio.muted !== 'boolean') save.audio.muted = false;
     const target = save.audio.muted ? 0 : clamp01(save.audio.music);
-    const activeId = currentScreen === 'battle' ? 'battleRhythmAudio' : 'marketMusic';
-    const inactiveId = activeId === 'marketMusic' ? 'battleRhythmAudio' : 'marketMusic';
+    const activeId = currentScreen === 'battle'
+      ? (adventureBossMusicActive ? 'adventureBossMusic' : 'battleRhythmAudio')
+      : 'marketMusic';
+    const activeKey = activeId === 'marketMusic' ? 'market' : activeId === 'adventureBossMusic' ? 'boss' : 'battle';
     const active = $(activeId);
-    const inactive = $(inactiveId);
-    if (active && !musicFadeTimers[activeId === 'marketMusic' ? 'market' : 'battle']) active.volume = target;
-    if (inactive && inactive.paused) inactive.volume = 0;
+    if (active && !musicFadeTimers[activeKey]) active.volume = target;
+    ['marketMusic','battleRhythmAudio','adventureBossMusic'].forEach(id => {
+      if (id === activeId) return;
+      const audio = $(id);
+      if (audio?.paused) audio.volume = 0;
+    });
     const musicSlider = $('musicVolume');
     const sfxSlider = $('sfxVolume');
     const savedMusic = clamp01(save.audio.music);
@@ -356,7 +364,7 @@
   function fadeMusicTrack(id, targetVolume, duration = 900, pauseWhenDone = false) {
     const audio = $(id);
     if (!audio) return;
-    const key = id === 'marketMusic' ? 'market' : 'battle';
+    const key = id === 'marketMusic' ? 'market' : id === 'adventureBossMusic' ? 'boss' : 'battle';
     if (musicFadeTimers[key]) clearInterval(musicFadeTimers[key]);
     const target = clamp01(targetVolume);
     if (target > 0) safePlay(audio);
@@ -381,14 +389,21 @@
     const volume = save.audio?.muted ? 0 : clamp01(save.audio?.music);
     const battleMode = screenName === 'battle';
     if (volume <= 0) {
-      ['marketMusic','battleRhythmAudio'].forEach(id => { const a=$(id); if (a && typeof a.pause === 'function') a.pause(); });
+      ['marketMusic','battleRhythmAudio','adventureBossMusic'].forEach(id => { const a=$(id); if (a && typeof a.pause === 'function') a.pause(); });
       return;
     }
     if (battleMode) {
       fadeMusicTrack('marketMusic', 0, duration, true);
-      fadeMusicTrack('battleRhythmAudio', volume, duration, false);
+      if (adventureBossMusicActive) {
+        fadeMusicTrack('battleRhythmAudio', 0, duration, true);
+        fadeMusicTrack('adventureBossMusic', volume, duration, false);
+      } else {
+        fadeMusicTrack('adventureBossMusic', 0, duration, true);
+        fadeMusicTrack('battleRhythmAudio', volume, duration, false);
+      }
     } else {
       fadeMusicTrack('battleRhythmAudio', 0, duration, true);
+      fadeMusicTrack('adventureBossMusic', 0, duration, true);
       fadeMusicTrack('marketMusic', volume, duration, false);
     }
   }
@@ -397,6 +412,25 @@
     if (save.audio?.muted || clamp01(save.audio?.music) <= 0) return;
     audioUnlocked = true;
     transitionScreenMusic(currentScreen, 500);
+  }
+
+  function startAdventureBossMusic(duration = 1100) {
+    adventureBossMusicActive = true;
+    audioUnlocked = true;
+    const boss = $('adventureBossMusic');
+    if (boss) {
+      try { boss.currentTime = 0; } catch (_) {}
+      boss.volume = 0;
+    }
+    transitionScreenMusic('battle', duration);
+  }
+
+  function stopAdventureBossMusic(duration = 1000, resumeBattle = false) {
+    adventureBossMusicActive = false;
+    fadeMusicTrack('adventureBossMusic', 0, duration, true);
+    if (resumeBattle && currentScreen === 'battle' && !save.audio?.muted && clamp01(save.audio?.music) > 0) {
+      fadeMusicTrack('battleRhythmAudio', clamp01(save.audio.music), duration, false);
+    }
   }
 
   function setMusicVolume(value) {
@@ -419,6 +453,7 @@
     if (save.audio.muted) {
       fadeMusicTrack('marketMusic', 0, 180, true);
       fadeMusicTrack('battleRhythmAudio', 0, 180, true);
+      fadeMusicTrack('adventureBossMusic', 0, 180, true);
     } else {
       audioUnlocked = true;
       transitionScreenMusic(currentScreen, 260);
@@ -435,6 +470,38 @@
       if (sfxContext.state === 'suspended' && typeof sfxContext.resume === 'function') sfxContext.resume().catch?.(() => {});
       return sfxContext;
     } catch (_) { return null; }
+  }
+
+  const KNIGHT_AUDIO = Object.freeze({
+    attack: 'assets/audio/attack_sound.mp3',
+    block: 'assets/audio/block_sound.mp3',
+    special: 'assets/audio/knight_warrior_special.mp3'
+  });
+
+  function playMediaSfx(src, intensity = 1) {
+    const base = (save.audio?.muted ? 0 : clamp01(save.audio?.sfx));
+    const volume = base * Math.max(.1, Math.min(1.5, Number(intensity) || 1));
+    if (!src || volume <= 0) return null;
+    try {
+      const audio = new Audio(src);
+      audio.preload = 'auto';
+      audio.volume = Math.max(0, Math.min(1, volume));
+      audio.playsInline = true;
+      safePlay(audio);
+      return audio;
+    } catch (_) { return null; }
+  }
+
+  function playKnightAttackHitSfx(intensity = 1) {
+    return playMediaSfx(KNIGHT_AUDIO.attack, intensity);
+  }
+
+  function playKnightBlockHitSfx(intensity = 1) {
+    return playMediaSfx(KNIGHT_AUDIO.block, intensity);
+  }
+
+  function playKnightSpecialChargeSfx(intensity = 1) {
+    return playMediaSfx(KNIGHT_AUDIO.special, intensity);
   }
 
   function playSfx(kind = 'slash', intensity = 1) {
@@ -466,6 +533,67 @@
         low.type='square'; low.frequency.setValueAtTime(kind==='lightning'?86:64,now); low.frequency.exponentialRampToValueAtTime(34,now+duration);
         lowGain.gain.setValueAtTime(.0001,now); lowGain.gain.exponentialRampToValueAtTime(.12*volume,now+.015); lowGain.gain.exponentialRampToValueAtTime(.0001,now+duration);
         low.connect(lowGain); lowGain.connect(ctx.destination); low.start(now); low.stop(now+duration+.04);
+      }
+    } catch (_) {}
+  }
+
+
+  function playBoosterSfx(kind = 'card') {
+    const volume = (save.audio?.muted ? 0 : clamp01(save.audio?.sfx));
+    if (volume <= 0) return;
+    const ctx = getSfxContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const tone = (start, duration, fromHz, toHz, gain = .08, type = 'sine') => {
+        const osc = ctx.createOscillator();
+        const amp = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(Math.max(20, fromHz), now + start);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, toHz), now + start + duration);
+        amp.gain.setValueAtTime(.0001, now + start);
+        amp.gain.exponentialRampToValueAtTime(Math.max(.0002, gain * volume), now + start + .012);
+        amp.gain.exponentialRampToValueAtTime(.0001, now + start + duration);
+        osc.connect(amp); amp.connect(ctx.destination);
+        osc.start(now + start); osc.stop(now + start + duration + .03);
+      };
+      const noise = (start, duration, gain = .05, cutoff = 1400) => {
+        const frames = Math.max(1, Math.floor(ctx.sampleRate * duration));
+        const buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < frames; i += 1) data[i] = (Math.random() * 2 - 1) * (1 - (i / frames));
+        const source = ctx.createBufferSource();
+        const filter = ctx.createBiquadFilter();
+        const amp = ctx.createGain();
+        source.buffer = buffer;
+        filter.type = 'highpass';
+        filter.frequency.value = cutoff;
+        amp.gain.setValueAtTime(Math.max(.0002, gain * volume), now + start);
+        amp.gain.exponentialRampToValueAtTime(.0001, now + start + duration);
+        source.connect(filter); filter.connect(amp); amp.connect(ctx.destination);
+        source.start(now + start); source.stop(now + start + duration + .02);
+      };
+
+      if (kind === 'deal') {
+        noise(0, .42, .075, 520);
+        tone(0, .34, 170, 520, .075, 'triangle');
+        tone(.18, .28, 260, 720, .045, 'sine');
+        tone(.38, .16, 780, 430, .045, 'triangle');
+      } else if (kind === 'silver') {
+        noise(0, .11, .04, 1800);
+        tone(0, .20, 430, 980, .055, 'triangle');
+        tone(.08, .36, 880, 1320, .09, 'sine');
+        tone(.18, .42, 1320, 1760, .055, 'sine');
+      } else if (kind === 'gold') {
+        noise(0, .12, .055, 1500);
+        tone(0, .28, 110, 72, .07, 'triangle');
+        tone(.02, .34, 392, 784, .08, 'sine');
+        tone(.13, .40, 587, 1174, .085, 'sine');
+        tone(.27, .50, 784, 1568, .09, 'sine');
+      } else {
+        noise(0, .09, .04, 1700);
+        tone(0, .18, 620, 310, .055, 'triangle');
+        tone(.045, .11, 960, 620, .035, 'square');
       }
     } catch (_) {}
   }
@@ -587,7 +715,7 @@
     if (id === 'sword_strike') return `Deal ${scalingBreakdown(stats, 'damage', 'damage')}. No Mana cost.`;
     if (id === 'shield_block') return `Take no damage from the next enemy attack and restore ${scalingBreakdown(stats, 'heal', 'Health')}.`;
     if (id === 'shield_bash') return `Deal ${scalingBreakdown(stats, 'damage', 'damage')}. ${Math.round(stats.stunChance * 100)}% chance to Stun the enemy.`;
-    if (id === 'sword_combo') return `Deal ${scalingBreakdown(stats, 'damage', 'damage')}. Your next Skill deals double damage.${stats.drawCombo ? ' Draw another Sword Combo if one is available.' : ''}`;
+    if (id === 'sword_combo') return `Deal ${scalingBreakdown(stats, 'damage', 'damage')}. Build the Sword Combo chain: play a different damaging Skill for double damage, or reach a third Sword Combo for triple damage and end the chain.${stats.drawCombo ? ' Draw another Sword Combo if one is available.' : ''}`;
     if (id === 'rising_slash') return `Deal ${scalingBreakdown(stats, 'damage', 'damage')}. ${Math.round(stats.bleedChance * 100)}% Bleed chance, ${stats.bleedDamage} damage for ${stats.bleedTurns} turns.`;
     if (id === 'sword_and_shield') return `Deal ${scalingBreakdown(stats, 'damage', 'damage')}. Take half damage from the next enemy turn${stats.reflectPct ? ` and reflect ${Math.round(stats.reflectPct * 100)}% of that damage` : ''}.`;
     if (id === 'executioners_swing') return `Deal ${scalingBreakdown(stats, 'damage', 'damage')}. ${Math.round(stats.skipSkillChance * 100)}% chance to lose your next Skill Phase.`;
@@ -612,8 +740,17 @@
     const displayType = def.category || def.type;
     const ownership = $('cardModalOwnership');
     if (ownership) {
-      ownership.hidden = context.type !== 'equipment';
-      ownership.textContent = `OWNED ×${save.owned[key] || 0}  •  IN DECK ${activeDeckMap()[key] || 0}`;
+      if (context.type === 'equipment') {
+        ownership.hidden = false;
+        ownership.textContent = `OWNED ×${save.owned[key] || 0}  •  IN DECK ${activeDeckMap()[key] || 0}`;
+      } else if (context.type === 'merchant') {
+        const remaining = merchantPurchasesRemaining(context.id);
+        ownership.hidden = false;
+        ownership.textContent = `OWNED ×${save.owned[key] || 0}  •  LIMIT 2 • ${remaining > 0 ? `${remaining} LEFT THIS ROTATION` : 'SOLD OUT THIS ROTATION'}`;
+      } else {
+        ownership.hidden = true;
+        ownership.textContent = '';
+      }
     }
     $('cardModalMeta').textContent = `${displayType} card • ${stats.cost} MP • ${def.type === 'boost' ? 'Boost' : 'Skill'} Phase`;
     $('cardModalText').textContent = cardEffectText(key);
@@ -633,17 +770,19 @@
       modalAction = () => playBattleCard(context.index);
     } else if (context.type === 'merchant') {
       const price = merchantPrices[context.id];
-      actionButton.textContent = `BUY • ${price} BRONZE`;
-      actionButton.disabled = save.bronze < price;
+      const soldOut = merchantCardSoldOut(context.id);
+      actionButton.textContent = soldOut ? 'SOLD OUT' : `BUY • ${price} BRONZE`;
+      actionButton.disabled = soldOut || save.bronze < price;
       modalAction = () => buyMerchantCard(context.id);
     } else if (context.type === 'equipment') {
-      const canAdd = cardVisibleForHero(key, activeHero()) && deckTotal() < 20 && spareCount(key) > 0;
-      actionButton.textContent = canAdd ? 'ADD TO DECK' : 'NO SPARE COPY';
+      const deckHealing = isHeroHealing(activeHero());
+      const canAdd = !deckHealing && cardVisibleForHero(key, activeHero()) && deckTotal() < 20 && spareCount(key) > 0;
+      actionButton.textContent = deckHealing ? 'DECK HEALING • LOCKED' : (canAdd ? 'ADD TO DECK' : 'NO SPARE COPY');
       actionButton.disabled = !canAdd;
       modalAction = () => changeDeck(key, 1);
       secondaryButton.hidden = false;
-      secondaryButton.textContent = 'REMOVE FROM DECK';
-      secondaryButton.disabled = (activeDeckMap()[key] || 0) <= 0 || deckTotal() <= 5;
+      secondaryButton.textContent = deckHealing ? 'DECK HEALING • LOCKED' : 'REMOVE FROM DECK';
+      secondaryButton.disabled = deckHealing || (activeDeckMap()[key] || 0) <= 0 || deckTotal() <= 5;
       modalSecondaryAction = () => changeDeck(key, -1);
     } else {
       actionButton.textContent = 'CLOSE';
@@ -677,6 +816,12 @@
 
   function showScreen(name, options = {}) {
     if (!screens.includes(name)) return;
+    completeHealingJobs?.();
+    if (name === 'battle' && isHeroHealing(activeHero())) {
+      if (battle?.ended) battle = null;
+      toast(`${heroDisplayName(activeHero())} deck is healing. That deck and its cards cannot battle until recovery finishes.`);
+      return false;
+    }
     if (name !== 'battle' && battle?.steady) cancelSteadyChoice();
     closeCardModal();
     closeConfirm();
@@ -744,12 +889,10 @@
     const isGold = kind === 'booster5';
     $('shopProductTitle').textContent = config.title;
     $('shopProductSubtitle').textContent = config.subtitle;
-    $('shopProductBody').innerHTML = `<div class="pack-option">
+    $('shopProductBody').innerHTML = `<div class="pack-option ${isGold ? 'booster5-menu' : 'booster3-menu'}">
       <div class="pack-option-art"><img src="${config.image}" alt="${config.title}"></div>
       <div class="pack-option-copy">
-        <h3>${config.title}</h3>
-        <p>${isGold ? 'Open five cards. The first pull is always Silver, with a very rare chance for extra Silver cards and a 1% Gold chance on each remaining pull.' : 'Open three random cards from the current card pool. Silver cards are intentionally rare in this smaller pack.'}</p>
-        <p class="pack-rate-note">${isGold ? '5-CARD RULE: 1 guaranteed Silver. Extra Silver is ultra rare. Gold chance: 1% on each of the other four cards.' : '3-CARD RULE: Bronze is the normal pull. Silver chance: 4% per card. No guaranteed Silver.'} • POTION RULE: every card slot has a 1 in 50 chance to roll a potion. Bronze potions can appear at any level, Silver potions begin appearing at Hero Level 50, and Gold potions begin appearing at Hero Level 100.</p>
+        <p class="pack-open-copy">${isGold ? 'OPEN 5 CARDS • 1 SILVER GUARANTEED' : 'OPEN 3 RANDOM CARDS'}</p>
         <div class="product-cost">${formatShopCost(config.cost)}</div>
         <button id="shopPackBuy" class="gold-button primary" type="button" ${canAffordShopCost(config.cost) ? '' : 'disabled'}>BUY PACK</button>
       </div>
@@ -761,19 +904,44 @@
   function renderStarterProducts() {
     const config = shopProductConfig.starters;
     $('shopProductTitle').textContent = config.title;
-    $('shopProductSubtitle').textContent = config.subtitle;
-    $('shopProductBody').innerHTML = `<p class="starter-options-note">All four starter decks are available here. Buying a deck never removes it from the shop, so any starter can be purchased again for more copies.</p>
+    $('shopProductSubtitle').textContent = 'Tap a deck to inspect all 20 cards';
+    $('shopProductBody').innerHTML = `<p class="starter-options-note">TAP A HERO DECK TO SEE EVERY INCLUDED CARD, THEN BUY IT FOR ${formatShopCost(config.cost)}.</p>
       <div class="starter-options-grid">${Object.entries(starterDecks).map(([hero, deck]) => `
-        <button class="starter-option" type="button" data-starter-buy="${hero}">
+        <button class="starter-option" type="button" data-starter-view="${hero}">
           <img src="${deck.image}" alt="${deck.name} Starter Deck">
           <h3>${deck.name}</h3>
           <span class="starter-cost">${formatShopCost(config.cost)}</span>
-          <span class="starter-owned">STARTER COPIES OWNED: ${save.starterDecks[hero] || 0}</span>
+          <span class="starter-owned">COPIES OWNED: ${save.starterDecks[hero] || 0}</span>
         </button>`).join('')}
       </div>`;
-    document.querySelectorAll('[data-starter-buy]').forEach(button => {
-      button.onclick = () => requestStarterPurchase(button.dataset.starterBuy);
+    document.querySelectorAll('[data-starter-view]').forEach(button => {
+      button.onclick = () => renderStarterDeckDetail(button.dataset.starterView);
     });
+  }
+
+  function renderStarterDeckDetail(hero) {
+    const config = shopProductConfig.starters;
+    const deck = starterDecks[hero];
+    if (!deck) return renderStarterProducts();
+    const total = Object.values(deck.cards).reduce((sum, count) => sum + count, 0);
+    $('shopProductTitle').textContent = `${deck.name} Starter Deck`;
+    $('shopProductSubtitle').textContent = `${total} cards • ${formatShopCost(config.cost)}`;
+    $('shopProductBody').innerHTML = `<div class="starter-detail">
+      <div class="starter-detail-hero">
+        <img src="${deck.image}" alt="${deck.name} Starter Deck">
+        <div><h3>${deck.name}</h3><p>${total} Bronze cards ready to play.</p><span class="starter-owned">COPIES OWNED: ${save.starterDecks[hero] || 0}</span></div>
+      </div>
+      <div class="starter-card-list">${Object.entries(deck.cards).map(([id, count]) => {
+        const def = cardDefs[id];
+        return `<div class="starter-card-row"><b>${def?.name || id}</b><span>×${count}</span></div>`;
+      }).join('')}</div>
+      <div class="starter-detail-actions">
+        <button id="starterDetailBack" class="gold-button" type="button">ALL STARTER DECKS</button>
+        <button id="starterDetailBuy" class="gold-button primary" type="button" ${canAffordShopCost(config.cost) ? '' : 'disabled'}>BUY • ${formatShopCost(config.cost)}</button>
+      </div>
+    </div>`;
+    $('starterDetailBack')?.addEventListener('click', renderStarterProducts);
+    $('starterDetailBuy')?.addEventListener('click', () => requestStarterPurchase(hero));
   }
 
   function renderExchangeProduct() {
@@ -781,8 +949,8 @@
     $('shopProductTitle').textContent = config.title;
     $('shopProductSubtitle').textContent = config.subtitle;
     $('shopProductBody').innerHTML = `<div class="exchange-grid">
-      <section class="exchange-card"><span class="eyebrow">BUY SILVER</span><h3>500 BRONZE → 1 SILVER</h3><p>Convert Bronze into Silver for booster packs and Gold forging.</p><button id="exchangeBronzeToSilver" class="gold-button primary" type="button" ${save.bronze >= EXCHANGE_BRONZE_PER_SILVER ? '' : 'disabled'}>EXCHANGE</button></section>
-      <section class="exchange-card"><span class="eyebrow">CASH OUT SILVER</span><h3>1 SILVER → 500 BRONZE</h3><p>Convert Silver back into Bronze for cards, Forge fees, and other purchases.</p><button id="exchangeSilverToBronze" class="gold-button primary" type="button" ${save.silver >= 1 ? '' : 'disabled'}>EXCHANGE</button></section>
+      <section class="exchange-card"><span class="eyebrow">BUY SILVER</span><h3>500 BRONZE → 1 SILVER</h3><button id="exchangeBronzeToSilver" class="gold-button primary" type="button" ${save.bronze >= EXCHANGE_BRONZE_PER_SILVER ? '' : 'disabled'}>EXCHANGE</button></section>
+      <section class="exchange-card"><span class="eyebrow">CASH OUT SILVER</span><h3>1 SILVER → 500 BRONZE</h3><button id="exchangeSilverToBronze" class="gold-button primary" type="button" ${save.silver >= 1 ? '' : 'disabled'}>EXCHANGE</button></section>
     </div>`;
     const toSilver = $('exchangeBronzeToSilver');
     const toBronze = $('exchangeSilverToBronze');
@@ -918,18 +1086,21 @@
     });
     modal.classList.remove('dealing');
     setOverlay('packRevealModal', true);
+    playBoosterSfx('deal');
     void modal.offsetWidth;
     modal.classList.add('dealing');
   }
 
-  function revealPackCard(button) {
+  function finishPackCardReveal(button, rank) {
     if (!button || button.classList.contains('revealed')) return;
+    button.classList.remove('reveal-pending','preflash-silver','preflash-gold');
     button.classList.add('revealed');
+    button.disabled = false;
     packRevealCount += 1;
     const flash = $('packRevealFlash');
-    flash.classList.remove('burst');
+    flash.className = 'pack-reveal-flash';
     void flash.offsetWidth;
-    flash.classList.add('burst');
+    flash.classList.add('burst', `burst-${rank}`);
     if (packRevealCount >= lastPackResults.length) {
       $('packRevealHint').textContent = 'ALL CARDS REVEALED';
       $('packRevealFinishBtn').disabled = false;
@@ -937,6 +1108,25 @@
     } else {
       $('packRevealHint').textContent = `${packRevealCount} / ${lastPackResults.length} REVEALED • CLICK THE NEXT CARD`;
     }
+  }
+
+  function revealPackCard(button) {
+    if (!button || button.classList.contains('revealed') || button.classList.contains('reveal-pending')) return;
+    const index = Number(button.dataset.packReveal);
+    const key = lastPackResults[index];
+    const { rank } = parseKey(key);
+    button.classList.add('reveal-pending');
+    button.disabled = true;
+
+    if (rank === 'silver' || rank === 'gold') {
+      button.classList.add(rank === 'silver' ? 'preflash-silver' : 'preflash-gold');
+      playBoosterSfx(rank);
+      setTimeout(() => finishPackCardReveal(button, rank), rank === 'gold' ? 520 : 420);
+      return;
+    }
+
+    playBoosterSfx('card');
+    finishPackCardReveal(button, rank);
   }
 
   function closePackReveal(returnToShelf = true) {
@@ -1010,6 +1200,22 @@
     return Math.floor((Date.now() - save.merchantStartedAt) / MERCHANT_ROTATION_MS);
   }
 
+  function merchantPurchaseKey(id, rotation = merchantRotationIndex()) {
+    return `${rotation}:${id}`;
+  }
+
+  function merchantPurchasesThisRotation(id, rotation = merchantRotationIndex()) {
+    return Math.max(0, Number(save.merchantPurchaseLedger?.[merchantPurchaseKey(id, rotation)]) || 0);
+  }
+
+  function merchantPurchasesRemaining(id, rotation = merchantRotationIndex()) {
+    return Math.max(0, 2 - merchantPurchasesThisRotation(id, rotation));
+  }
+
+  function merchantCardSoldOut(id, rotation = merchantRotationIndex()) {
+    return merchantPurchasesRemaining(id, rotation) <= 0;
+  }
+
   function merchantStock() {
     const index = merchantRotationIndex();
     return merchantRotations[((index % merchantRotations.length) + merchantRotations.length) % merchantRotations.length];
@@ -1022,10 +1228,13 @@
     if (!selectedMerchantId || !stock.includes(selectedMerchantId)) selectedMerchantId = stock[0];
     $('merchantStock').innerHTML = stock.map(id => {
       const key = keyFor(id);
-      return `<button class="shop-card ${selectedMerchantId === id ? 'selected' : ''}" type="button" data-shop-card="${id}">
+      const soldOut = merchantCardSoldOut(id);
+      const remaining = merchantPurchasesRemaining(id);
+      const owned = save.owned[key] || 0;
+      return `<button class="shop-card ${selectedMerchantId === id ? 'selected' : ''} ${soldOut ? 'sold-out' : ''}" type="button" data-shop-card="${id}">
         <span class="price-tag">${merchantPrices[id]} BRONZE</span>
         <img src="${cardAsset(key)}" alt="${cardDefs[id].name}">
-        <b>${cardDefs[id].name}</b><small>${cardDefs[id].type.toUpperCase()} • Owned ${save.owned[key] || 0}</small>
+        <b>${cardDefs[id].name}</b><small>${cardDefs[id].type.toUpperCase()} • OWNED ${owned} • ${soldOut ? 'SOLD OUT' : `${remaining} LEFT`}</small>
       </button>`;
     }).join('');
     document.querySelectorAll('[data-shop-card]').forEach(button => {
@@ -1035,9 +1244,6 @@
         openCardModal(keyFor(selectedMerchantId), { type: 'merchant', id: selectedMerchantId });
       };
     });
-    $('merchantBuySelected').disabled = !selectedMerchantId || save.bronze < merchantPrices[selectedMerchantId];
-    $('merchantBuySelected').textContent = 'BUY';
-    $('merchantBuySelected').setAttribute('aria-label', selectedMerchantId ? `Buy ${cardDefs[selectedMerchantId].name} for ${merchantPrices[selectedMerchantId]} Bronze` : 'Buy selected card');
     renderSellPanel();
     renderMissions();
     updateMerchantTimer();
@@ -1048,21 +1254,26 @@
     const remaining = MERCHANT_ROTATION_MS - (elapsed % MERCHANT_ROTATION_MS);
     const minutes = Math.floor(remaining / 60000);
     const seconds = Math.floor((remaining % 60000) / 1000);
-    $('merchantTimer').textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
+    const timerText = `${minutes}:${String(seconds).padStart(2, '0')}`;
+    $('merchantTimer').textContent = timerText;
+    if ($('merchantTimerPanel')) $('merchantTimerPanel').textContent = timerText;
     if (currentScreen === 'merchant' && merchantRotationSeen !== merchantRotationIndex()) renderMerchant();
   }
 
   function buyMerchantCard(id) {
     const price = merchantPrices[id];
+    if (merchantCardSoldOut(id)) return toast('That card is sold out until the next rotation.');
     if (save.bronze < price) return toast('Not enough Bronze.');
     save.bronze -= price;
     const key = keyFor(id);
     save.owned[key] = (save.owned[key] || 0) + 1;
+    const ledgerKey = merchantPurchaseKey(id);
+    save.merchantPurchaseLedger[ledgerKey] = merchantPurchasesThisRotation(id) + 1;
     persist();
     closeCardModal();
     closeConfirm();
     renderMerchant();
-    toast(`${cardDefs[id].name} added to your owned cards.`);
+    toast(merchantCardSoldOut(id) ? `${cardDefs[id].name} purchased. That card is now sold out until the next rotation.` : `${cardDefs[id].name} added to your owned cards.`);
   }
 
   function renderSellPanel() {
@@ -1173,7 +1384,9 @@
   }
   function switchActiveHero(hero) {
     if (!['knight','mage','warrior','healer'].includes(hero)) return;
+    completeHealingJobs();
     if (hero !== 'knight' && (save.starterDecks?.[hero] || 0) <= 0) return toast(`${heroDisplayName(hero)} starter deck is not owned.`);
+    if (isHeroHealing(hero)) return toast(`${heroDisplayName(hero)} deck is still healing and cannot be used yet.`);
     save.activeHero = hero;
     equipmentSort = 'name';
     const equipmentSortSelect = $('equipmentSort');
@@ -1188,12 +1401,14 @@
     document.querySelectorAll('[data-hero-filter]').forEach(button => {
       const hero=button.dataset.heroFilter;
       const owned=hero==='knight' || (save.starterDecks?.[hero]||0)>0;
+      const healing=isHeroHealing(hero);
       const p=heroProgress(hero), level=heroLevel(hero), need=xpNeededForLevel(level);
       button.classList.toggle('locked',!owned);
+      button.classList.toggle('healing',healing);
       button.classList.toggle('selected',hero===activeHero());
-      button.disabled=!owned;
+      button.disabled=!owned || healing;
       const label=button.querySelector('.hero-progress-label') || button.querySelector('span');
-      if(label){ label.className='hero-progress-label'; label.innerHTML=`<b>${heroDisplayName(hero).toUpperCase()} • LV ${level}</b><small>XP ${p.xp} / ${need}</small><i><em style="width:${xpProgressPct(hero)}%"></em></i>`; }
+      if(label){ label.className='hero-progress-label'; label.innerHTML=`<b>${heroDisplayName(hero).toUpperCase()} • LV ${level}</b><small>${healing ? 'RECOVERING • DECK LOCKED' : `XP ${p.xp} / ${need}`}</small><i><em style="width:${xpProgressPct(hero)}%"></em></i>`; }
     });
   }
   function renderEquipment() {
@@ -1203,8 +1418,9 @@
     const total=deckTotal();
     $('equipmentDeckCount').textContent=total;
     $('equipmentHeroName').textContent=`${heroDisplayName(hero).toUpperCase()} OWNED CARDS`;
-    $('deckHealth').textContent=total<5?'NEEDS 5 CARDS':'READY';
-    $('deckHealth').classList.toggle('warn',total<5);
+    const heroHealing = isHeroHealing(hero);
+    $('deckHealth').textContent=heroHealing?'HEALING • LOCKED':(total<5?'NEEDS 5 CARDS':'READY');
+    $('deckHealth').classList.toggle('warn',total<5 || heroHealing);
     $('activeDeck').innerHTML='';
     const ownedKeys=sortInventoryKeys(Object.keys(save.owned).filter(key=>{
       if((save.owned[key]||0)<=0) return false;
@@ -1225,6 +1441,7 @@
   }
 
   function changeDeck(key, delta) {
+    if (isHeroHealing(activeHero())) return toast(`${heroDisplayName(activeHero())} deck is healing. Its cards are locked until recovery finishes.`);
     if (!cardVisibleForHero(key, activeHero())) return toast('That card belongs to another Hero.');
     const current = activeDeckMap()[key] || 0;
     if (delta > 0) {
@@ -1415,14 +1632,20 @@
     return (save.healingSlots || []).filter(slot => slot && !slot.complete && slot.endsAt > now).length;
   }
 
+
+  function isHeroHealing(hero = activeHero(), now = Date.now()) {
+    return (save.healingSlots || []).some(slot => slot && slot.hero === hero && !slot.complete && slot.endsAt > now);
+  }
+
   function completeHealingJobs(now = Date.now()) {
     let changed = false;
-    (save.healingSlots || []).forEach(slot => {
-      if (!slot || slot.complete || now < slot.endsAt) return;
+    (save.healingSlots || []).forEach((slot, index) => {
+      if (!slot || now < slot.endsAt) return;
       const vitals = ensureHeroVitals(slot.hero);
       vitals.hp = vitals.maxHp;
       vitals.mp = vitals.maxMp;
-      slot.complete = true;
+      // Recovery is complete. Remove the deck from the bed automatically.
+      save.healingSlots[index] = null;
       changed = true;
     });
     if (changed) persist();
@@ -1441,22 +1664,20 @@
       const slot = save.healingSlots[index];
       if (!slot) return `<article class="heal-station empty"><span class="heal-bed-number">BED ${index + 1}</span><div class="heal-plus">＋</div><b>PLACE DECK</b><small>CLICK TO CHOOSE</small><button type="button" data-heal-slot="${index}" aria-label="Choose deck for recovery bed ${index + 1}"></button></article>`;
       const vitals = ensureHeroVitals(slot.hero);
-      const complete = !!slot.complete;
       const remaining = Math.max(0, slot.endsAt - now);
-      const elapsedPct = complete ? 100 : Math.max(0, Math.min(100, ((slot.duration - remaining) / Math.max(1, slot.duration)) * 100));
+      const elapsedPct = Math.max(0, Math.min(100, ((slot.duration - remaining) / Math.max(1, slot.duration)) * 100));
       const speedClass = slot.duration >= 60000 ? 'slow' : 'fast';
-      return `<article class="heal-station ${complete ? 'complete' : 'active'}">
+      return `<article class="heal-station active">
         <span class="heal-bed-number">BED ${index + 1}</span>
         <img src="assets/heroes/${slot.hero}_card.webp" alt="${heroDisplayName(slot.hero)} deck">
         <h2>${heroDisplayName(slot.hero).toUpperCase()}</h2>
         <div class="heal-vital"><span>HEALTH</span><b>${vitals.hp} / ${vitals.maxHp}</b></div>
         <div class="heal-vital"><span>MANA</span><b>${vitals.mp} / ${vitals.maxMp}</b></div>
-        <div class="heal-countdown ${speedClass} ${complete ? 'done' : ''}"><span class="heal-progress-fill" style="width:${elapsedPct}%"></span>${complete ? 'RECOVERED' : `HEALING • ${healTimeText(remaining)}`}</div>
-        ${complete ? `<button class="heal-remove" type="button" data-heal-remove="${index}">REMOVE DECK</button>` : `<small class="heal-duration">${Math.round(slot.duration / 1000)} SECOND RECOVERY</small>`}
+        <div class="heal-countdown ${speedClass}"><span class="heal-progress-fill" style="width:${elapsedPct}%"></span>HEALING • ${healTimeText(remaining)}</div>
+        <small class="heal-duration">DECK + CARDS LOCKED • ${Math.round(slot.duration / 1000)} SECOND RECOVERY</small>
       </article>`;
     }).join('');
     document.querySelectorAll('[data-heal-slot]').forEach(button => button.onclick = () => openHealPicker(Number(button.dataset.healSlot)));
-    document.querySelectorAll('[data-heal-remove]').forEach(button => button.onclick = () => removeHealingDeck(Number(button.dataset.healRemove)));
   }
 
   function openHealPicker(index) {
@@ -1923,6 +2144,7 @@
     const hit = () => {
       if (impactFired) return;
       impactFired = true;
+      playKnightAttackHitSfx(id === 'executioners_swing' ? 1.08 : 1);
       onImpact?.();
     };
     const end = (totalMs, opts = {}) => later(() => {
@@ -1975,6 +2197,7 @@
 
       case 'executioners_swing':
         total = 1880;
+        playKnightSpecialChargeSfx(1);
         later(() => showKnightActionFrame('executioners_swing.png'), 1000);
         later(() => {
           flashKnightImpact('special_effect.png', 'flash-special');
@@ -2135,11 +2358,18 @@
     if (battle.hero.blockNext) {
       battle.hero.blockNext = false;
       damage = 0;
-      if (battle.hero.id === 'knight' && battle.hero.shieldBlockPoseActive) shakeKnightBlockPose();
+      if (battle.hero.id === 'knight' && battle.hero.shieldBlockPoseActive) {
+        playKnightBlockHitSfx(1);
+        shakeKnightBlockPose();
+      }
       addBattleLog(`Shield Block stopped ${moveName}.`, 'good');
     } else if (battle.hero.shieldTurns > 0) {
       damage = Math.ceil(damage * .5);
       battle.hero.shieldTurns -= 1;
+      if (battle.hero.id === 'knight' && battle.hero.shieldBlockPoseActive) {
+        playKnightBlockHitSfx(.92);
+        shakeKnightBlockPose();
+      }
       addBattleLog(`Shield Up reduced ${moveName} to ${damage} damage.`, 'good');
     } else if (battle.hero.block > 0) {
       const absorbed = Math.min(battle.hero.block, damage);
@@ -2518,6 +2748,7 @@
       caveFightIndex: caveActive ? (save.cave.fightIndex || 0) : -1,
       break: 0,
       doubleNext: false,
+      swordComboChain: 0,
       steady: null,
       deck: shuffled(activeCards),
       hand: [],
@@ -2688,10 +2919,30 @@
     if (battle.doubleNext && damage > 0) {
       damage *= 2;
       battle.doubleNext = false;
-      addBattleLog('Sword Combo doubled the attack!', 'good');
-    } else if (battle.doubleNext) {
+      addBattleLog('Empowered Skill dealt double damage!', 'good');
+    } else if (battle.doubleNext && def.type === 'skill') {
       battle.doubleNext = false;
-      addBattleLog('The pending Sword Combo faded on a defensive Skill.', 'system');
+      addBattleLog('The pending double-damage effect ended on a defensive Skill.', 'system');
+    }
+
+    const isSwordCombo = id === 'sword_combo';
+    const comboChainBefore = Math.max(0, Math.min(2, Number(battle.swordComboChain) || 0));
+    let swordComboTripleCashout = false;
+    if (isSwordCombo) {
+      if (comboChainBefore >= 2) {
+        if (damage > 0) damage *= 3;
+        battle.swordComboChain = 0;
+        swordComboTripleCashout = true;
+        addBattleLog('Sword Combo chain complete! Third Sword Combo dealt TRIPLE damage.', 'good');
+      }
+    } else if (def.type === 'skill' && comboChainBefore > 0) {
+      if (damage > 0) {
+        damage *= 2;
+        addBattleLog('Sword Combo chain cashed out: Skill dealt DOUBLE damage.', 'good');
+      } else {
+        addBattleLog('Sword Combo chain ended on a defensive Skill.', 'system');
+      }
+      battle.swordComboChain = 0;
     }
     if (damage > 0) {
       damage = applyDamageToEnemy(damage, def.name);
@@ -2753,7 +3004,10 @@
       addBattleLog(`${battle.enemy.name} is Bleeding for ${battle.enemy.bleedTurns} turns.`, 'good');
     }
     if (stats.drawCombo && drawAnotherSwordCombo()) addBattleLog('Another Sword Combo was drawn.', 'good');
-    if (stats.combo) battle.doubleNext = true;
+    if (stats.combo && !swordComboTripleCashout) {
+      battle.swordComboChain = Math.min(2, comboChainBefore + 1);
+      addBattleLog(`Sword Combo chain ${battle.swordComboChain}/3 ready. A different damaging Skill can cash out for double damage${battle.swordComboChain >= 2 ? ', or another Sword Combo will hit for triple damage' : ''}.`, 'good');
+    }
     if (battle.hero.id==='knight') { battle.hero.block=(battle.hero.block||0)+5; addBattleLog('Knight passive gained 5 Block.','good'); }
     if (stats.stunChance && Math.random() < stats.stunChance) {
       battle.enemy.stunned = true;
@@ -3244,6 +3498,7 @@
     let silverReward = 0;
     const wasCave = !!battle.caveActive;
     const caveFightIndex = battle.caveFightIndex;
+    const deferAdventureRewards = !!battle.deferAdventureRewards;
 
     saveBattleVitals();
 
@@ -3253,9 +3508,14 @@
       silverReward = rewards.silver;
       xpReward = 30;
       save.stats.wins += 1;
-      save.bronze += bronzeReward;
-      save.silver += silverReward;
-      const xpResult = awardHeroXp(xpReward);
+
+      if (deferAdventureRewards) {
+        battle.pendingAdventureReward = { bronze: bronzeReward, silver: silverReward, xp: xpReward };
+      } else {
+        save.bronze += bronzeReward;
+        save.silver += silverReward;
+        awardHeroXp(xpReward);
+      }
 
       if (wasCave) {
         if (caveFightIndex >= 3) {
@@ -3268,7 +3528,7 @@
           save.cave.fightIndex = caveFightIndex + 1;
           battle.caveContinue = true;
         }
-      } else {
+      } else if (!deferAdventureRewards) {
         if (battle.enemy.kind === 'boss' || battle.enemy.kind === 'hero') save.stats.normalWinsSinceBoss = 0;
         else if (battle.enemy.kind === 'normal') save.stats.normalWinsSinceBoss = (save.stats.normalWinsSinceBoss || 0) + 1;
         // Coin Carrier is a special replacement encounter and does not advance the five-normal-win boss counter.
@@ -3292,7 +3552,7 @@
     else if (win && wasCave && caveFightIndex >= 3) $('resultCopy').textContent = `The Level ${battle.enemy.level} Goblin King has fallen. You escaped the Cave.`;
     else $('resultCopy').textContent = win ? `Level ${battle.enemy.level} ${battle.enemy.name} is defeated. Your remaining Health and Mana carry forward.` : `${heroDisplayName(activeHero())} was defeated by Level ${battle.enemy.level} ${battle.enemy.name}. Visit the Healers to recover.`;
     $('resultRewards').innerHTML = win
-      ? `<span>BRONZE<b>+${bronzeReward}</b></span><span>HERO XP<b>+${xpReward}</b></span>${silverReward ? `<span>SILVER<b>+${silverReward}</b></span>` : ''}`
+      ? `<span>${deferAdventureRewards ? 'BANKED' : 'BRONZE'}<b>+${bronzeReward}</b></span><span>HERO XP<b>+${xpReward}</b></span>${silverReward ? `<span>SILVER<b>+${silverReward}</b></span>` : ''}`
       : '<span>REWARD<b>NONE</b></span>';
 
     $('resultMenuBtn').hidden = !!(win && wasCave && caveFightIndex < 3);
@@ -3300,8 +3560,8 @@
     syncGlobalUI();
     renderBattle();
     setOverlay('battleResult', true);
-    if (win && pendingLevelUp) setTimeout(showLevelUpCelebration, 420);
-    else if (win && !wasCave && save.stats.caveOfferDue) setTimeout(promptCaveOffer, 260);
+    if (win && pendingLevelUp && !deferAdventureRewards) setTimeout(showLevelUpCelebration, 420);
+    else if (win && !wasCave && save.stats.caveOfferDue && !deferAdventureRewards) setTimeout(promptCaveOffer, 260);
   }
 
   /* Wiring */
@@ -3324,12 +3584,6 @@
   $('steadyConfirm').addEventListener('click', confirmSteadyChoice);
   $('healPickerClose').addEventListener('click', () => setOverlay('healPicker', false));
   $('healPicker').addEventListener('click', event => { if (event.target === $('healPicker')) setOverlay('healPicker', false); });
-  $('merchantBuySelected').addEventListener('click', () => {
-    if (!selectedMerchantId) return;
-    const price = merchantPrices[selectedMerchantId];
-    if (save.bronze < price) return toast('Not enough Bronze.');
-    showConfirm(`Buy ${cardDefs[selectedMerchantId].name}?`, `Spend ${price} Bronze for one Bronze copy.`, () => buyMerchantCard(selectedMerchantId));
-  });
   const shopShelfTargets = [
     ['shopBooster5Hit', 'shopBooster5Display', 'booster5'],
     ['shopStarterHit', 'shopStarterDisplay', 'starters'],
@@ -3449,6 +3703,7 @@
       changeDeck,
       switchActiveHero,
       activeDeckMap,
+      isHeroHealing,
       heroLevel,
       heroXp,
       selectForgeCard,
@@ -3496,6 +3751,8 @@
       getScreen: () => currentScreen,
       setMusicVolume,
       setSfxVolume,
+      startAdventureBossMusic,
+      stopAdventureBossMusic,
       heroActionMarkup
     };
   }

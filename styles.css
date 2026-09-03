@@ -2756,3 +2756,688 @@ i { font-style: normal; }
 }
 .card-ownership[hidden] { display:none !important; }
 .card-modal-copy h2 { margin-top:16px !important; }
+
+
+/* === V10 mobile shop + recovery usability pass === */
+/* Shelf products glow without hover so they read as tappable on phones. */
+#shopBooster5Display,
+#shopBooster3Display {
+  animation: shop-booster-mobile-glow 1.8s ease-in-out infinite alternate;
+}
+#shopStarterDisplay {
+  animation: shop-starter-mobile-glow 1.8s ease-in-out infinite alternate;
+}
+@keyframes shop-booster-mobile-glow {
+  from { filter: brightness(1.04) saturate(1.02) drop-shadow(0 0 5px rgba(255,255,255,.52)); }
+  to { filter: brightness(1.27) saturate(1.04) drop-shadow(0 0 17px rgba(255,255,255,1)) drop-shadow(0 0 34px rgba(255,255,255,.70)); }
+}
+@keyframes shop-starter-mobile-glow {
+  from { filter: brightness(1.05) saturate(1.08) drop-shadow(0 0 6px rgba(255,224,72,.54)); }
+  to { filter: brightness(1.29) saturate(1.18) drop-shadow(0 0 18px rgba(255,238,88,1)) drop-shadow(0 0 38px rgba(255,185,18,.72)); }
+}
+/* Hover/focus can still intensify the glow on desktop without being required. */
+#shopBooster5Display.glow,
+#shopBooster3Display.glow,
+#shopStarterDisplay.glow { animation-play-state: paused; }
+
+/* The rotating card already owns its BUY button inside the card detail modal. */
+#merchantBuySelected { display:none !important; }
+
+/* Cleaner booster product screen: no rules paragraph, larger 5-card focal pack. */
+.pack-option.booster5-menu { grid-template-columns: 510px 1fr; gap: 26px; }
+.pack-option.booster5-menu .pack-option-art { min-height: 850px; overflow: visible; }
+.pack-option.booster5-menu .pack-option-art img {
+  width: 112%;
+  max-width: 540px;
+  max-height: 840px;
+  transform: scale(1.08);
+}
+.pack-option.booster5-menu .pack-option-copy h3 { font-size: 48px; }
+.pack-open-copy {
+  margin: 20px 0 30px !important;
+  color: #fff0b6 !important;
+  font: 1000 31px/1.28 Arial Black, Arial, sans-serif !important;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+.pack-rate-note { display:none !important; }
+.pack-reveal-hint { font-size: 30px !important; line-height: 1.18 !important; }
+
+/* Make wallet totals unmistakable at the bottom of every shop product menu. */
+.shop-product-balance { gap: 12px 24px; font-size: 22px; }
+.shop-product-balance > span { font-size: 23px; letter-spacing: .11em; }
+.shop-product-balance b { font-size: 34px; }
+.shop-product-balance i { font-size: 38px; }
+
+/* Starter deck inspection before purchase. */
+.starter-detail { display:grid; gap:22px; }
+.starter-detail-hero {
+  display:grid;
+  grid-template-columns: 300px 1fr;
+  align-items:center;
+  gap:22px;
+  padding:16px 20px;
+  border:2px solid rgba(216,168,66,.54);
+  background:linear-gradient(180deg,rgba(38,28,13,.91),rgba(5,5,5,.97));
+}
+.starter-detail-hero img { width:100%; height:340px; object-fit:contain; filter:drop-shadow(0 18px 14px #000); }
+.starter-detail-hero h3 { margin:0 0 10px; color:#fff0b7; font:1000 36px/1 Georgia,serif; text-transform:uppercase; }
+.starter-detail-hero p { margin:0 0 12px; color:#d8caa5; font-size:21px; }
+.starter-detail-hero .starter-owned { color:#f0cd70; font-size:18px; font-weight:1000; }
+.starter-card-list {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px 14px;
+  padding:18px;
+  border:2px solid rgba(216,168,66,.38);
+  background:rgba(0,0,0,.68);
+}
+.starter-card-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  min-height:54px;
+  padding:9px 14px;
+  border:1px solid rgba(216,168,66,.24);
+  background:rgba(216,168,66,.055);
+  color:#f0e3c2;
+  font-size:18px;
+}
+.starter-card-row b { font-weight:900; }
+.starter-card-row span { color:#ffd96d; font:1000 22px/1 Arial Black,Arial,sans-serif; }
+.starter-detail-actions { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.starter-detail-actions .gold-button { min-height:86px; font-size:23px; }
+
+/* Recovery decks are visibly unavailable while their timer is running. */
+.equipment-hero-rail button.healing {
+  filter: grayscale(.55) brightness(.65);
+  border-color: rgba(126,208,255,.65) !important;
+  box-shadow: inset 0 0 22px rgba(70,176,255,.13), 0 0 18px rgba(70,176,255,.22);
+}
+.equipment-hero-rail button.healing .hero-progress-label small { color:#8bdcff; }
+
+
+/* === V11 Money Exchange readability pass ===
+   Remove redundant copy and give this screen more breathing room on mobile. */
+.shop-product-box.exchange-mode,
+.shop-product-box.exchange-mode button,
+.shop-product-box.exchange-mode .eyebrow,
+.shop-product-box.exchange-mode h2,
+.shop-product-box.exchange-mode h3,
+.shop-product-box.exchange-mode .shop-product-balance {
+  font-family: "Trebuchet MS", Verdana, Arial, sans-serif !important;
+}
+.shop-product-box.exchange-mode {
+  width: 850px !important;
+  max-height: 1180px !important;
+}
+.shop-product-box.exchange-mode .shop-product-heading {
+  padding: 34px 38px 30px !important;
+}
+.shop-product-box.exchange-mode .shop-product-heading h2 {
+  margin: 8px 0 0 !important;
+  font-size: 50px !important;
+  font-weight: 900 !important;
+  line-height: 1.18 !important;
+  letter-spacing: .075em !important;
+}
+.shop-product-box.exchange-mode .shop-product-heading p:empty {
+  display: none !important;
+}
+.shop-product-box.exchange-mode .shop-product-body {
+  padding: 34px 38px 40px !important;
+}
+.shop-product-box.exchange-mode .exchange-grid {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 30px !important;
+}
+.shop-product-box.exchange-mode .exchange-card {
+  min-height: 330px !important;
+  justify-content: center !important;
+  gap: 30px !important;
+  padding: 34px 28px !important;
+  text-align: center !important;
+}
+.shop-product-box.exchange-mode .exchange-card .eyebrow {
+  font-size: 21px !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+  letter-spacing: .13em !important;
+}
+.shop-product-box.exchange-mode .exchange-card h3 {
+  margin: 0 !important;
+  font-size: 29px !important;
+  font-weight: 900 !important;
+  line-height: 1.32 !important;
+  letter-spacing: .055em !important;
+}
+.shop-product-box.exchange-mode .exchange-card p {
+  display: none !important;
+}
+.shop-product-box.exchange-mode .exchange-card .gold-button {
+  min-height: 82px !important;
+  margin-top: 4px !important;
+  font-family: "Trebuchet MS", Verdana, Arial, sans-serif !important;
+  font-size: 23px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  letter-spacing: .09em !important;
+}
+.shop-product-box.exchange-mode .shop-product-footer {
+  grid-template-columns: 1fr 240px !important;
+  gap: 28px !important;
+  padding: 28px 34px 32px !important;
+}
+.shop-product-box.exchange-mode .shop-product-balance {
+  gap: 14px 28px !important;
+  font-weight: 900 !important;
+  line-height: 1.3 !important;
+  letter-spacing: .07em !important;
+}
+.shop-product-box.exchange-mode .shop-product-balance > span {
+  font-size: 24px !important;
+  line-height: 1.3 !important;
+  letter-spacing: .12em !important;
+}
+.shop-product-box.exchange-mode .shop-product-balance b {
+  font-size: 35px !important;
+  line-height: 1.25 !important;
+}
+.shop-product-box.exchange-mode .shop-product-balance i {
+  font-size: 39px !important;
+  line-height: 1.2 !important;
+}
+
+
+/* === V12 shop typography + merchant limits pass === */
+.shop-product-heading h2,
+.shop-sell-panel h2,
+.pack-option-copy h3,
+.starter-option h3,
+.starter-detail-hero h3 {
+  font-family: "Arial Black", Arial, sans-serif !important;
+  font-weight: 1000 !important;
+  letter-spacing: .06em !important;
+  line-height: 1.06 !important;
+}
+
+.shop-product-heading h2 {
+  font-size: 58px !important;
+  margin: 10px 0 10px !important;
+}
+.shop-product-heading p {
+  font: 900 22px/1.35 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .09em !important;
+}
+
+/* Cleaner pack product layouts using the updated booster art. */
+.pack-option { gap: 28px !important; }
+.pack-option.booster5-menu,
+.pack-option.booster3-menu { grid-template-columns: 500px 1fr !important; }
+.pack-option-art {
+  min-height: 860px !important;
+  padding: 14px !important;
+  background: radial-gradient(circle, rgba(216,168,66,.15), transparent 68%) !important;
+}
+.pack-option-art img {
+  width: 100% !important;
+  max-height: 820px !important;
+}
+.pack-option-copy {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+}
+.pack-option-copy h3 { display:none !important; }
+.pack-option-copy p.pack-open-copy {
+  margin: 0 !important;
+  color: #fff0bd !important;
+  font: 1000 42px/1.14 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase !important;
+}
+.product-cost {
+  margin: 0 0 10px !important;
+  padding: 14px 20px !important;
+  font: 1000 30px/1 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .06em !important;
+}
+.pack-option-copy .gold-button {
+  min-height: 92px !important;
+  font-size: 30px !important;
+}
+
+/* Starter deck screens get the same cleaner bold header treatment. */
+.starter-options-note {
+  font: 900 22px/1.42 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase;
+}
+.starter-option h3 {
+  font-size: 31px !important;
+}
+.starter-option .starter-cost {
+  font: 1000 24px/1 "Arial Black", Arial, sans-serif !important;
+}
+.starter-option .starter-owned,
+.starter-detail-hero .starter-owned {
+  font: 1000 20px/1.2 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase;
+}
+.starter-detail-hero h3 {
+  font-size: 42px !important;
+}
+.starter-detail-hero p {
+  font-size: 22px !important;
+  line-height: 1.4 !important;
+}
+.starter-card-row {
+  font-size: 19px !important;
+}
+.starter-card-row b {
+  font-family: "Arial Black", Arial, sans-serif;
+  font-size: 20px;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+/* Sell card panel cleaner bold text. */
+.shop-sell-panel h2 {
+  font-size: 38px !important;
+  padding: 10px 14px !important;
+}
+.merchant-sell-slot .sell-placeholder {
+  font: 1000 14px/1.25 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .05em !important;
+}
+.merchant-sell-slot .sell-value {
+  font: 1000 24px/1 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .06em !important;
+}
+.merchant-sell-slot .selling-name {
+  font: 1000 17px/1.18 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .04em !important;
+}
+
+/* Merchant cards and buy modal readability + per-rotation limit. */
+.shop-card small {
+  font-size: 20px !important;
+  line-height: 1.28 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase;
+}
+.shop-card.sold-out {
+  border-color: rgba(255,120,120,.7) !important;
+  box-shadow: inset 0 0 0 2px rgba(255,120,120,.2), 0 0 18px rgba(255,120,120,.18);
+}
+.card-modal-topline {
+  gap: 14px 16px !important;
+}
+.card-ownership {
+  font: 1000 28px/1.18 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .035em !important;
+  white-space: normal !important;
+}
+.card-meta {
+  font: 1000 23px/1.32 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .06em !important;
+}
+.card-modal-copy h2 {
+  font: 1000 52px/1.04 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .04em !important;
+}
+.card-modal-copy p {
+  font-size: 26px !important;
+  line-height: 1.48 !important;
+}
+.card-modal-actions .gold-button {
+  font-size: 25px !important;
+}
+
+
+/* V14 shop readability + timer placement pass */
+.shop-title p {
+  color: #f6e8bf;
+  font: 1000 17px/1.28 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0,0,0,.78);
+}
+
+.shop-stock-panel .blueprint-label > span,
+.shop-sell-panel h2,
+.shop-rotation-timer span {
+  font-family: "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .05em;
+}
+
+.shop-stock-list .price-tag {
+  color: #f7eac7;
+  font: 1000 18px/1.08 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .07em;
+  text-shadow: 0 2px 8px rgba(0,0,0,.88);
+}
+
+.shop-stock-panel {
+  height: 860px;
+}
+.shop-stock-list {
+  height: 612px;
+  padding-bottom: 10px;
+}
+.shop-rotation-timer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  min-height: 84px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 4px solid rgba(255,214,111,.82);
+  background: linear-gradient(180deg, rgba(20,12,3,.96), rgba(0,0,0,.94));
+  box-shadow: 0 0 16px rgba(232,182,70,.18), inset 0 0 0 2px rgba(255,240,185,.08);
+  text-align: center;
+}
+.shop-rotation-timer span {
+  color: #ead7a0;
+  font: 1000 14px/1 "Arial Black", Arial, sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.shop-rotation-timer b {
+  color: #fff8df;
+  font: 1000 34px/1 "Arial Black", Arial, sans-serif;
+  letter-spacing: .08em;
+  text-shadow: 0 2px 10px rgba(0,0,0,.75);
+}
+
+/* === V15 booster audio + rarity reveal feedback === */
+.pack-reveal-card.reveal-pending { cursor: default; }
+.pack-reveal-card.preflash-silver {
+  z-index: 11;
+  filter: brightness(1.26)
+    drop-shadow(0 0 18px rgba(235,244,255,.95))
+    drop-shadow(0 0 42px rgba(180,210,255,.75));
+}
+.pack-reveal-card.preflash-gold {
+  z-index: 12;
+  filter: brightness(1.35)
+    drop-shadow(0 0 20px rgba(255,245,174,1))
+    drop-shadow(0 0 52px rgba(255,194,43,.92));
+}
+.pack-reveal-card.preflash-silver .pack-card-back {
+  animation: pack-silver-preflash .42s ease-out both;
+}
+.pack-reveal-card.preflash-gold .pack-card-back {
+  animation: pack-gold-preflash .52s ease-out both;
+}
+@keyframes pack-silver-preflash {
+  0% { transform: scale(1); box-shadow: inset 0 0 0 7px #080604, inset 0 0 0 10px rgba(216,168,66,.72), inset 0 0 44px #000; }
+  34% { transform: scale(1.035); box-shadow: inset 0 0 0 7px #080604, inset 0 0 0 10px rgba(232,242,255,.98), inset 0 0 42px rgba(210,228,255,.52), 0 0 28px rgba(224,239,255,.95); }
+  68% { transform: scale(1.015); box-shadow: inset 0 0 0 7px #080604, inset 0 0 0 10px rgba(232,242,255,.98), inset 0 0 48px rgba(210,228,255,.72), 0 0 46px rgba(196,222,255,.82); }
+  100% { transform: scale(1); }
+}
+@keyframes pack-gold-preflash {
+  0% { transform: scale(1); box-shadow: inset 0 0 0 7px #080604, inset 0 0 0 10px rgba(216,168,66,.72), inset 0 0 44px #000; }
+  28% { transform: scale(1.045); box-shadow: inset 0 0 0 7px #080604, inset 0 0 0 10px rgba(255,224,84,1), inset 0 0 48px rgba(255,204,53,.68), 0 0 34px rgba(255,221,89,1); }
+  64% { transform: scale(1.025); box-shadow: inset 0 0 0 7px #080604, inset 0 0 0 10px rgba(255,233,119,1), inset 0 0 56px rgba(255,191,25,.82), 0 0 58px rgba(255,196,33,.96); }
+  100% { transform: scale(1); }
+}
+.pack-reveal-card.revealed.rank-silver {
+  filter: brightness(1.08) drop-shadow(0 0 24px rgba(223,236,255,.78));
+}
+.pack-reveal-card.revealed.rank-gold {
+  filter: brightness(1.12) drop-shadow(0 0 32px rgba(255,215,67,.9));
+}
+.pack-reveal-flash.burst-silver {
+  background: radial-gradient(circle at 50% 56%,rgba(255,255,255,.98),rgba(205,225,255,.56) 18%,rgba(255,255,255,0) 46%);
+}
+.pack-reveal-flash.burst-gold {
+  background: radial-gradient(circle at 50% 56%,rgba(255,252,215,1),rgba(255,205,52,.65) 18%,rgba(255,255,255,0) 48%);
+}
+.pack-reveal-flash.burst-bronze,
+.pack-reveal-flash.burst-card {
+  background: radial-gradient(circle at 50% 56%,rgba(255,246,198,.96),rgba(255,219,73,.38) 17%,rgba(255,255,255,0) 44%);
+}
+
+/* === V16 Forge cleanup pass === */
+/* Remove the large black result box so the authored forge background stays visible.
+   The upgraded card image still renders in the same preview area. */
+.forge-screen .forge-preview {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.forge-screen .forge-preview img {
+  padding: 0 !important;
+  filter: drop-shadow(0 18px 18px rgba(0,0,0,.92));
+}
+.forge-screen .forge-preview > span {
+  display: none !important;
+}
+
+/* Clean, wide bold type across the forge header/instruction area. */
+.forge-title h1 {
+  font-family: "Arial Black", Arial, sans-serif !important;
+  font-weight: 1000 !important;
+  font-size: 112px !important;
+  line-height: .96 !important;
+  letter-spacing: .035em !important;
+  text-shadow: 0 4px 10px rgba(0,0,0,.9) !important;
+}
+.forge-title p {
+  margin-top: 24px !important;
+  color: #f6e7b9 !important;
+  font: 1000 23px/1.28 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .08em !important;
+  text-shadow: 0 3px 9px rgba(0,0,0,.92) !important;
+}
+.forge-instruction {
+  color: #fff6dc !important;
+  font: 1000 31px/1.25 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .055em !important;
+  text-shadow: 0 3px 9px rgba(0,0,0,.95) !important;
+}
+.forge-currency span,
+.forge-currency b {
+  font-family: "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .05em !important;
+}
+
+
+/* V17 equipment header + separate deck counter */
+.equipment-title h1 {
+  font-family: "Arial Black", Arial, sans-serif !important;
+  font-weight: 1000 !important;
+  font-size: 112px !important;
+  line-height: .96 !important;
+  letter-spacing: .035em !important;
+  text-shadow: 0 4px 10px rgba(0,0,0,.9) !important;
+}
+.equipment-title p {
+  margin-top: 24px !important;
+  color: #f6e7b9 !important;
+  font: 1000 23px/1.28 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .08em !important;
+  text-shadow: 0 3px 9px rgba(0,0,0,.92) !important;
+}
+.equipment-currency,
+.equipment-deck-counter {
+  width: 214px;
+  min-height: 88px;
+}
+.equipment-currency { left: 410px !important; top: 266px !important; }
+.equipment-deck-counter {
+  position: absolute;
+  z-index: 12;
+  left: 654px;
+  top: 266px;
+}
+.equipment-currency span,
+.equipment-currency b,
+.equipment-deck-counter span,
+.equipment-deck-counter b,
+.equipment-deck-counter em {
+  font-family: "Arial Black", Arial, sans-serif !important;
+  font-style: normal !important;
+  letter-spacing: .05em !important;
+}
+.equipment-currency span,
+.equipment-deck-counter span {
+  color: #e7ce80;
+  font-size: 18px !important;
+}
+.equipment-currency b,
+.equipment-deck-counter b {
+  color: #f6df8c;
+  font-size: 30px !important;
+  line-height: 1 !important;
+}
+.equipment-deck-counter b {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+.equipment-deck-counter i,
+.equipment-deck-counter em {
+  font-style: normal;
+}
+.equipment-deck-counter i {
+  font-size: 34px;
+  color: #fff6d6;
+}
+.equipment-deck-counter em {
+  font-size: 25px;
+  color: #d7c28c;
+}
+
+
+/* V18 healer header cleanup */
+.heal-room-copy {
+  top: 332px !important;
+  width: 860px !important;
+}
+.heal-room-copy b {
+  display: none !important;
+}
+.heal-room-copy span {
+  margin-top: 0 !important;
+  color: #fff2c8 !important;
+  font: 1000 26px/1.28 "Arial Black", Arial, sans-serif !important;
+  letter-spacing: .07em !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 3px 10px rgba(0,0,0,.95) !important;
+}
+
+/* =========================================================
+   V25 OPENING SEQUENCE
+   NERDY GAMES -> RPCG SPLASH -> EMBARK -> FORGE REVEAL
+   ========================================================= */
+.startup-intro {
+  position:absolute; inset:0; z-index:5000; overflow:hidden; background:#000;
+  opacity:1; visibility:visible; pointer-events:auto; transform-origin:center center;
+}
+.startup-intro.intro-finished {
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .65s ease, visibility 0s linear .65s;
+}
+.intro-stage { position:absolute; inset:0; display:none; overflow:hidden; background:#000; }
+.intro-stage.active { display:block; }
+
+.nerdy-intro-stage { place-items:center; align-content:center; }
+.nerdy-intro-stage.active { display:grid; }
+.nerdy-intro-glow {
+  position:absolute; left:50%; top:50%; width:650px; height:420px;
+  transform:translate(-50%,-50%); border-radius:50%;
+  background:radial-gradient(circle,rgba(255,35,25,.22),rgba(255,20,10,.08) 44%,transparent 72%);
+  filter:blur(24px); opacity:0; animation:nerdyGlowIn .8s .1s ease forwards;
+}
+.nerdy-intro-logo {
+  position:relative; width:720px; height:720px; object-fit:contain; opacity:0;
+  transform:scale(.78); filter:drop-shadow(0 0 24px rgba(255,25,20,.32));
+  animation:nerdyLogoPop .72s cubic-bezier(.16,.9,.23,1.12) forwards;
+}
+.nerdy-intro-stage.exit .nerdy-intro-logo { animation:nerdyLogoExit .42s ease forwards; }
+.nerdy-intro-stage.exit .nerdy-intro-glow { animation:introFadeOut .42s ease forwards; }
+@keyframes nerdyLogoPop { 0%{opacity:0;transform:scale(.78)} 68%{opacity:1;transform:scale(1.035)} 100%{opacity:1;transform:scale(1)} }
+@keyframes nerdyGlowIn { from{opacity:0;transform:translate(-50%,-50%) scale(.72)} to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
+@keyframes nerdyLogoExit { from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(1.045)} }
+@keyframes introFadeOut { to{opacity:0} }
+
+.game-splash-stage { opacity:0; background:#000; }
+.game-splash-stage.active { display:block; animation:splashStageIn .68s ease forwards; }
+.game-splash-stage.embarking { animation:splashStageOut .52s ease forwards; pointer-events:none; }
+.game-splash-art { position:absolute; inset:0; width:1080px; height:1920px; object-fit:cover; }
+.game-splash-vignette {
+  position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.04),transparent 23%,transparent 64%,rgba(0,0,0,.28)),radial-gradient(ellipse at center,transparent 48%,rgba(0,0,0,.20) 100%);
+}
+.embark-button {
+  position:absolute; z-index:4; left:50%; bottom:108px; width:560px; height:122px;
+  transform:translateX(-50%); border:3px solid #f1cf69; border-radius:8px;
+  color:#fff1bc; background:linear-gradient(180deg,rgba(120,76,18,.97),rgba(63,34,5,.98)),#6f460d;
+  box-shadow:inset 0 0 0 3px rgba(255,240,173,.14),inset 0 -14px 28px rgba(0,0,0,.24),0 0 0 2px rgba(70,38,5,.9),0 10px 28px rgba(0,0,0,.58),0 0 22px rgba(226,177,63,.22);
+  font:1000 48px/1 "Arial Black",Arial,sans-serif; letter-spacing:.11em; text-shadow:0 3px 7px #000;
+  cursor:pointer; opacity:0; animation:embarkReveal .7s .28s ease forwards,embarkPulse 2.4s 1.2s ease-in-out infinite;
+}
+.embark-button::before,.embark-button::after {
+  content:""; position:absolute; top:50%; width:28px; height:28px; border:3px solid #e7bd4c;
+  background:#6e430c; transform:translateY(-50%) rotate(45deg);
+}
+.embark-button::before { left:-16px; }
+.embark-button::after { right:-16px; }
+.embark-button:active { transform:translateX(-50%) translateY(3px) scale(.985); filter:brightness(1.12); }
+.embark-button:disabled { cursor:default; }
+@keyframes embarkReveal { from{opacity:0;transform:translateX(-50%) translateY(20px) scale(.96)} to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} }
+@keyframes embarkPulse {
+  0%,100%{box-shadow:inset 0 0 0 3px rgba(255,240,173,.14),inset 0 -14px 28px rgba(0,0,0,.24),0 0 0 2px rgba(70,38,5,.9),0 10px 28px rgba(0,0,0,.58),0 0 18px rgba(226,177,63,.18)}
+  50%{box-shadow:inset 0 0 0 3px rgba(255,240,173,.22),inset 0 -14px 28px rgba(0,0,0,.24),0 0 0 2px rgba(70,38,5,.9),0 10px 28px rgba(0,0,0,.58),0 0 34px rgba(244,197,76,.46)}
+}
+@keyframes splashStageIn { from{opacity:0} to{opacity:1} }
+@keyframes splashStageOut { from{opacity:1;filter:brightness(1)} to{opacity:0;filter:brightness(.2)} }
+
+.forge-intro-stage {
+  background:radial-gradient(circle at 50% 52%,rgba(64,34,5,.16),transparent 32%),#000; opacity:0;
+}
+.forge-intro-stage.active { display:block; animation:forgeStageIn .34s ease forwards; }
+.forge-intro-assembly { position:absolute; inset:0; transform-origin:50% 53%; will-change:transform; }
+.forge-intro-layer { position:absolute; inset:0; width:1080px; height:1920px; object-fit:contain; pointer-events:none; }
+.forge-intro-base { opacity:0; filter:drop-shadow(0 0 0 rgba(255,116,0,0)) brightness(.78); }
+.forge-intro-hammer { opacity:0; transform:translateY(-340px); transform-origin:center center; filter:brightness(.78); }
+.forge-intro-spark { opacity:0; transform:scale(.62); transform-origin:center center; mix-blend-mode:screen; filter:brightness(1.5) saturate(1.25); }
+.forge-intro-glow {
+  position:absolute; left:50%; top:54%; width:650px; height:650px; transform:translate(-50%,-50%) scale(.55);
+  border-radius:50%; opacity:0; background:radial-gradient(circle,rgba(255,151,28,.70),rgba(255,86,0,.22) 30%,transparent 68%);
+  filter:blur(28px); pointer-events:none;
+}
+.forge-intro-stage.hammer-ready .forge-intro-hammer { animation:hammerApproach .72s cubic-bezier(.18,.72,.25,1) forwards; }
+.forge-intro-stage.hammer-strike .forge-intro-hammer { animation:hammerStrike .24s cubic-bezier(.1,.88,.13,1) forwards; }
+.forge-intro-stage.impact .forge-intro-base { animation:logoForgeReveal .5s cubic-bezier(.15,.8,.2,1) forwards; }
+.forge-intro-stage.impact .forge-intro-spark { animation:sparkImpact .55s ease-out forwards; }
+.forge-intro-stage.impact .forge-intro-glow { animation:forgeGlow .82s ease-out forwards; }
+.forge-intro-stage.impact .forge-intro-assembly { animation:forgeShake .34s linear both; }
+.forge-intro-stage.breathe .forge-intro-assembly { animation:forgedBreathZoom 2.5s cubic-bezier(.2,.62,.18,1) forwards; }
+.forge-intro-stage.breathe .forge-intro-base,.forge-intro-stage.breathe .forge-intro-hammer { filter:brightness(1) drop-shadow(0 0 18px rgba(255,122,18,.24)); }
+@keyframes forgeStageIn { from{opacity:0} to{opacity:1} }
+@keyframes hammerApproach { 0%{opacity:0;transform:translateY(-340px)} 24%{opacity:1} 100%{opacity:1;transform:translateY(-115px)} }
+@keyframes hammerStrike { from{opacity:1;transform:translateY(-115px)} to{opacity:1;transform:translateY(0)} }
+@keyframes logoForgeReveal {
+  0%{opacity:0;filter:brightness(.5) drop-shadow(0 0 0 rgba(255,110,0,0));transform:scale(.965)}
+  42%{opacity:1;filter:brightness(1.65) drop-shadow(0 0 42px rgba(255,119,0,.95));transform:scale(1.018)}
+  100%{opacity:1;filter:brightness(1) drop-shadow(0 0 18px rgba(255,119,0,.28));transform:scale(1)}
+}
+@keyframes sparkImpact { 0%{opacity:0;transform:scale(.55)} 16%{opacity:1;transform:scale(1.65)} 55%{opacity:.9;transform:scale(1.12)} 100%{opacity:0;transform:scale(2.25)} }
+@keyframes forgeGlow { 0%{opacity:0;transform:translate(-50%,-50%) scale(.45)} 25%{opacity:1;transform:translate(-50%,-50%) scale(1.12)} 100%{opacity:.22;transform:translate(-50%,-50%) scale(.88)} }
+@keyframes forgeShake {
+  0%{transform:translate(0,0)} 12%{transform:translate(-16px,6px)} 24%{transform:translate(13px,-8px)} 36%{transform:translate(-10px,5px)}
+  48%{transform:translate(8px,-4px)} 62%{transform:translate(-6px,3px)} 78%{transform:translate(4px,-2px)} 100%{transform:translate(0,0)}
+}
+@keyframes forgedBreathZoom { 0%{transform:scale(1)} 38%{transform:scale(1.025)} 68%{transform:scale(1.018)} 100%{transform:scale(1.085)} }
+.startup-intro[aria-hidden="true"] { pointer-events:none; }

@@ -17,25 +17,84 @@
 
 .battle-mode-box {
   width:900px;
-  padding:54px;
-  border:4px solid #d8a842;
-  background:linear-gradient(180deg,#171107,#050505 68%);
+  padding:42px 42px 34px;
+  border:3px solid #d8a842;
+  background:linear-gradient(180deg,rgba(23,17,7,.94),rgba(5,5,5,.98) 72%);
   box-shadow:0 0 70px rgba(216,168,66,.34), inset 0 0 55px rgba(0,0,0,.72);
   text-align:center;
 }
-.battle-mode-box h1 { margin:16px 0 38px; color:#fff0c5; font:900 72px/.95 Georgia,serif; }
-.battle-mode-choice {
-  width:100%; min-height:250px; margin:0 0 24px; padding:34px 40px;
-  border:3px solid rgba(216,168,66,.74); background:linear-gradient(135deg,rgba(28,21,10,.96),rgba(3,3,3,.98));
-  color:#fff; text-align:left; box-shadow:inset 0 0 42px rgba(0,0,0,.66),0 14px 26px rgba(0,0,0,.46);
+.battle-mode-box h1 {
+  margin:14px 0 28px;
+  color:#fff0c5;
+  font:900 68px/.95 Impact, Haettenschweiler, Arial Narrow Bold, sans-serif;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  text-shadow:0 5px 10px rgba(0,0,0,.8);
 }
-.battle-mode-choice span { display:block; color:#fff2c6; font:900 53px/1 Georgia,serif; }
-.battle-mode-choice small { display:block; margin-top:16px; color:#d2c4a2; font-size:24px; line-height:1.35; }
-.battle-mode-choice b { display:block; margin-top:18px; color:#8df383; font:900 19px/1 Arial,sans-serif; letter-spacing:.08em; }
-.battle-mode-choice.endless-choice { border-color:#a95a43; }
-.battle-mode-choice:disabled { filter:grayscale(.75) brightness(.55); cursor:not-allowed; }
+.battle-mode-choice {
+  position:relative;
+  width:100%;
+  min-height:188px;
+  margin:0 0 24px;
+  padding:22px 26px;
+  border:3px solid #fff;
+  background-size:cover !important;
+  background-position:center !important;
+  color:#fff;
+  text-align:left;
+  box-shadow:0 13px 24px rgba(0,0,0,.46), inset 0 0 42px rgba(0,0,0,.38);
+  overflow:hidden;
+  transition:filter .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+.battle-mode-choice::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(0,0,0,.54));
+  pointer-events:none;
+}
+.battle-mode-choice > * { position:relative; z-index:2; }
+.battle-mode-choice.adventure-choice {
+  background-image:url('assets/adventure/adventure_mode_bg.png') !important;
+}
+.battle-mode-choice.endless-choice {
+  background-image:url('assets/adventure/dungeon_bg.png') !important;
+}
+.battle-mode-choice span {
+  display:block;
+  margin:0;
+  color:#fff;
+  font:400 58px/1 Georgia, serif;
+  letter-spacing:.015em;
+  text-shadow:0 5px 9px #000;
+  text-transform:uppercase;
+}
+.battle-mode-choice small {
+  display:block;
+  margin-top:10px;
+  max-width:520px;
+  color:#f2ead7;
+  font:900 22px/1.24 Arial, sans-serif;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  text-shadow:0 3px 8px rgba(0,0,0,.9);
+}
+.battle-mode-choice b {
+  display:block;
+  margin-top:12px;
+  color:#9df293;
+  font:900 18px/1.15 Arial,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  text-shadow:0 2px 7px rgba(0,0,0,.92);
+}
+.battle-mode-choice:disabled { filter:grayscale(.35) brightness(.72); cursor:not-allowed; }
 .battle-mode-choice:not(:disabled):hover,
-.battle-mode-choice:not(:disabled):focus-visible { border-color:#fff0a0; filter:brightness(1.15); box-shadow:0 0 26px rgba(255,218,102,.62),inset 0 0 42px rgba(255,216,116,.08); }
+.battle-mode-choice:not(:disabled):focus-visible {
+  border-color:#fff0a0;
+  filter:brightness(1.08);
+  box-shadow:0 0 26px rgba(255,218,102,.42), inset 0 0 42px rgba(255,216,116,.10), 0 13px 24px rgba(0,0,0,.46);
+}
 .adventure-back,
 .adventure-leave {
   min-height:78px; padding:0 28px; border:3px solid #d8a842; background:rgba(0,0,0,.84); color:#ffe8a4;
@@ -129,3 +188,30 @@
 #battleResult .result-card.adventure-result-card .two-actions { display:block !important; }
 #battleResult .result-card.adventure-result-card #resultMenuBtn { display:none !important; }
 #battleResult .result-card.adventure-result-card #fightAgainBtn { width:100%; min-height:100px; font-size:31px; }
+
+
+/* V23 Adventure route choices + automatic pre-boss full restore */
+.adventure-choice-box > p,
+.boss-recovery-box > p {
+  margin: -12px auto 30px;
+  max-width: 720px;
+  color: #e3d7b7;
+  font: 900 21px/1.35 Arial, sans-serif;
+  letter-spacing: .03em;
+}
+.adventure-path-choice-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.adventure-path-choice {
+  min-height:330px; padding:30px 24px; border:3px solid #d8a842;
+  background:linear-gradient(180deg,rgba(51,36,15,.96),rgba(5,5,5,.98)); color:#fff;
+  box-shadow:inset 0 0 42px rgba(0,0,0,.62);
+}
+.adventure-path-choice.camp { border-color:#79da7e; }
+.adventure-path-choice.treasure { border-color:#f3df8a; }
+.adventure-path-choice > span { display:block; margin-bottom:18px; font-size:72px; line-height:1; }
+.adventure-path-choice b { display:block; color:#fff0bf; font:900 34px/1 "Arial Black",Arial,sans-serif; letter-spacing:.04em; }
+.adventure-path-choice small { display:block; margin-top:18px; color:#d9ceb0; font:900 19px/1.35 Arial,sans-serif; }
+.boss-recovery-box { border-color:#efcf69; box-shadow:0 0 85px rgba(235,198,87,.38); }
+.boss-recovery-box h2 { color:#fff4bf; }
+.boss-recovery-vitals { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:28px auto 36px; }
+.boss-recovery-vitals span { padding:18px; border:2px solid #d8a842; background:rgba(0,0,0,.74); color:#dccb9f; font:900 18px/1 "Arial Black",Arial,sans-serif; letter-spacing:.08em; }
+.boss-recovery-vitals b { display:block; margin-top:12px; color:#fff1b4; font-size:34px; }

@@ -1,0 +1,7 @@
+V22 Adventure Boss Music
+- Added tournament_fighters_loop.mp3 as the music for every Adventure Area Boss fight.
+- Boss music loops during the fight.
+- Fades in over ~1.1 seconds as the boss battle starts.
+- Fades out over ~1.1 seconds as victory/defeat appears.
+- Regular battle music fades out beneath it and returns normally outside boss fights.
+- Obeys the existing Music slider and Volume On/Off control.

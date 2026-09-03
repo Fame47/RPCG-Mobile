@@ -1,0 +1,8 @@
+RPCG Mobile V11 - Money Exchange readability pass
+
+- Removed the fixed-rate subtitle under Money Exchange.
+- Removed redundant Convert Bronze into Silver / Convert Silver back into Bronze paragraphs.
+- Renamed exchange heading to MONEY EXCHANGE.
+- Switched exchange-screen UI to a wider Trebuchet/Verdana bold face for readability.
+- Increased line-height, letter spacing, card gaps, padding, and button spacing across the Money Exchange screen.
+- Kept the rate itself visible in large type above each Exchange button.

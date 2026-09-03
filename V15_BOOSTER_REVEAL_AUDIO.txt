@@ -1,0 +1,11 @@
+RPCG MOBILE ADVENTURE — V15 BOOSTER REVEAL AUDIO
+
+Changes:
+- Booster purchase now plays a dedicated pack/deal sound as the mystery cards come out.
+- Every card turnover has a reveal sound.
+- Bronze/regular reveals use the standard card-flip sound.
+- Silver reveals use a distinct bright silver chime/flip sound.
+- Gold reveals use a distinct heavier gold rarity fanfare/flip sound.
+- Silver mystery cards flash and glow silver before the flip, then keep a silver aura after reveal.
+- Gold mystery cards flash and glow gold before the flip, then keep a gold aura after reveal.
+- All booster sounds respect the existing SFX slider and master Volume On/Off button.

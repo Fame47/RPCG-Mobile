@@ -1,0 +1,13 @@
+RPCG V20 — SWORD COMBO CHAIN FIX
+
+Sword Combo is now its own persistent chain instead of reusing the generic "double next Skill" flag.
+
+Rules:
+1. First Sword Combo starts the chain (1/3).
+2. Second Sword Combo advances it (2/3).
+3. A third Sword Combo deals TRIPLE damage and ends/reset the chain.
+4. At either 1/3 or 2/3, playing a different damaging Skill deals DOUBLE damage and ends/reset the chain.
+5. A defensive/non-damaging Skill ends the chain without a damage bonus.
+6. Boosts, enemy turns, and skipped Skill phases do not automatically erase the Sword Combo chain, so it can build over time.
+7. Silver/Gold Sword Combo still draw another Sword Combo when one is available.
+8. Generic double-next-Skill effects such as Focus/Adrenaline Rush remain separate from Sword Combo.
