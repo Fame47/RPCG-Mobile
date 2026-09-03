@@ -161,7 +161,7 @@
     return {
       bronze: 502,
       silver: 0,
-      audio: { music: .55, sfx: .75 },
+      audio: { music: .55, sfx: .75, muted: false },
       heroLevel: 1,
       heroXp: 0,
       activeHero: 'knight',
@@ -323,8 +323,9 @@
 
   function clamp01(value) { return Math.max(0, Math.min(1, Number(value) || 0)); }
   function syncAudioUI() {
-    save.audio ||= { music:.55, sfx:.75 };
-    const target = clamp01(save.audio.music);
+    save.audio ||= { music:.55, sfx:.75, muted:false };
+    if (typeof save.audio.muted !== 'boolean') save.audio.muted = false;
+    const target = save.audio.muted ? 0 : clamp01(save.audio.music);
     const activeId = currentScreen === 'battle' ? 'battleRhythmAudio' : 'marketMusic';
     const inactiveId = activeId === 'marketMusic' ? 'battleRhythmAudio' : 'marketMusic';
     const active = $(activeId);
@@ -333,10 +334,18 @@
     if (inactive && inactive.paused) inactive.volume = 0;
     const musicSlider = $('musicVolume');
     const sfxSlider = $('sfxVolume');
-    if (musicSlider) musicSlider.value = String(Math.round(target * 100));
-    if (sfxSlider) sfxSlider.value = String(Math.round(clamp01(save.audio.sfx) * 100));
-    if ($('musicVolumeValue')) $('musicVolumeValue').textContent = `${Math.round(target * 100)}%`;
-    if ($('sfxVolumeValue')) $('sfxVolumeValue').textContent = `${Math.round(clamp01(save.audio.sfx) * 100)}%`;
+    const savedMusic = clamp01(save.audio.music);
+    const savedSfx = clamp01(save.audio.sfx);
+    if (musicSlider) musicSlider.value = String(Math.round(savedMusic * 100));
+    if (sfxSlider) sfxSlider.value = String(Math.round(savedSfx * 100));
+    if ($('musicVolumeValue')) $('musicVolumeValue').textContent = `${Math.round(savedMusic * 100)}%`;
+    if ($('sfxVolumeValue')) $('sfxVolumeValue').textContent = `${Math.round(savedSfx * 100)}%`;
+    const toggle = $('volumeToggleBtn');
+    if (toggle) {
+      toggle.textContent = save.audio.muted ? 'VOLUME: OFF' : 'VOLUME: ON';
+      toggle.setAttribute('aria-pressed', save.audio.muted ? 'true' : 'false');
+      toggle.classList.toggle('muted', save.audio.muted);
+    }
   }
 
   function safePlay(audio) {
@@ -369,7 +378,7 @@
 
   function transitionScreenMusic(screenName = currentScreen, duration = 900) {
     if (!audioUnlocked) return;
-    const volume = clamp01(save.audio?.music);
+    const volume = save.audio?.muted ? 0 : clamp01(save.audio?.music);
     const battleMode = screenName === 'battle';
     if (volume <= 0) {
       ['marketMusic','battleRhythmAudio'].forEach(id => { const a=$(id); if (a && typeof a.pause === 'function') a.pause(); });
@@ -385,13 +394,13 @@
   }
 
   function ensureMusicPlaying() {
-    if (clamp01(save.audio?.music) <= 0) return;
+    if (save.audio?.muted || clamp01(save.audio?.music) <= 0) return;
     audioUnlocked = true;
     transitionScreenMusic(currentScreen, 500);
   }
 
   function setMusicVolume(value) {
-    save.audio ||= { music:.55, sfx:.75 };
+    save.audio ||= { music:.55, sfx:.75, muted:false };
     save.audio.music = clamp01(Number(value) / 100);
     syncAudioUI(); persist();
     if (save.audio.music > 0) ensureMusicPlaying();
@@ -399,9 +408,23 @@
   }
 
   function setSfxVolume(value) {
-    save.audio ||= { music:.55, sfx:.75 };
+    save.audio ||= { music:.55, sfx:.75, muted:false };
     save.audio.sfx = clamp01(Number(value) / 100);
     syncAudioUI(); persist();
+  }
+
+  function toggleMasterVolume() {
+    save.audio ||= { music:.55, sfx:.75, muted:false };
+    save.audio.muted = !save.audio.muted;
+    if (save.audio.muted) {
+      fadeMusicTrack('marketMusic', 0, 180, true);
+      fadeMusicTrack('battleRhythmAudio', 0, 180, true);
+    } else {
+      audioUnlocked = true;
+      transitionScreenMusic(currentScreen, 260);
+    }
+    syncAudioUI();
+    persist();
   }
 
   function getSfxContext() {
@@ -415,7 +438,7 @@
   }
 
   function playSfx(kind = 'slash', intensity = 1) {
-    const volume = clamp01(save.audio?.sfx) * Math.max(.15, Math.min(1.5, Number(intensity) || 1));
+    const volume = (save.audio?.muted ? 0 : clamp01(save.audio?.sfx)) * Math.max(.15, Math.min(1.5, Number(intensity) || 1));
     if (volume <= 0) return;
     const ctx = getSfxContext();
     if (!ctx) return;
@@ -587,8 +610,12 @@
     $('cardModalName').textContent = def.name;
     const stats = cardStats(key);
     const displayType = def.category || def.type;
+    const ownership = $('cardModalOwnership');
+    if (ownership) {
+      ownership.hidden = context.type !== 'equipment';
+      ownership.textContent = `OWNED ×${save.owned[key] || 0}  •  IN DECK ${activeDeckMap()[key] || 0}`;
+    }
     $('cardModalMeta').textContent = `${displayType} card • ${stats.cost} MP • ${def.type === 'boost' ? 'Boost' : 'Skill'} Phase`;
-    if (context.type === 'equipment') $('cardModalMeta').textContent = `${rank.toUpperCase()} • [OWNED X${save.owned[key] || 0}] • IN DECK ${activeDeckMap()[key] || 0} • ${displayType.toUpperCase()} CARD • ${stats.cost} MP`;
     $('cardModalText').textContent = cardEffectText(key);
 
     const actionButton = $('cardModalAction');
@@ -3344,6 +3371,7 @@
   $('forgeTypeFilter').addEventListener('change', event => { forgeTypeFilter = event.target.value; renderForgePicker(); });
   if ($('musicVolume')) $('musicVolume').addEventListener('input', event => setMusicVolume(event.target.value));
   if ($('sfxVolume')) $('sfxVolume').addEventListener('input', event => setSfxVolume(event.target.value));
+  if ($('volumeToggleBtn')) $('volumeToggleBtn').addEventListener('click', toggleMasterVolume);
   document.addEventListener('pointerdown', ensureMusicPlaying, { once:true });
   document.addEventListener('click', () => { if (!audioUnlocked) ensureMusicPlaying(); });
   $('resultMenuBtn').addEventListener('click', () => { setOverlay('battleResult', false); showScreen('menu'); });

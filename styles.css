@@ -2673,3 +2673,86 @@ i { font-style: normal; }
 
 /* Battle action text is intentionally removed from combat presentation. */
 #battleMessage, .battle-screen .enemy-intent { display:none !important; }
+
+
+/* === V9 menu/shop/card readability pass === */
+.menu-audio-controls {
+  gap: 11px !important;
+}
+.volume-toggle-button {
+  width: 100%;
+  min-height: 54px;
+  border: 2px solid rgba(216,168,66,.88);
+  background: linear-gradient(180deg,rgba(51,34,14,.96),rgba(3,3,3,.94));
+  color: #fff0b9;
+  font: 900 18px/1 Arial Black,Arial,sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 16px rgba(0,0,0,.72),0 8px 14px rgba(0,0,0,.42);
+  cursor: pointer;
+}
+.volume-toggle-button:hover,.volume-toggle-button:focus-visible {
+  border-color:#fff1b8;
+  filter:brightness(1.15);
+  box-shadow:0 0 20px rgba(255,226,139,.40),inset 0 0 16px rgba(0,0,0,.72);
+}
+.volume-toggle-button.muted {
+  border-color:rgba(174,174,174,.86);
+  color:#dedede;
+  background:linear-gradient(180deg,rgba(34,34,34,.96),rgba(4,4,4,.95));
+}
+
+/* Booster shelf hover = white. Starter shelf hover = yellow. */
+#shopBooster5Display.glow,
+#shopBooster3Display.glow {
+  z-index:10;
+  filter:brightness(1.34) saturate(1.02)
+    drop-shadow(0 0 16px rgba(255,255,255,1))
+    drop-shadow(0 0 38px rgba(255,255,255,.82)) !important;
+}
+#shopStarterDisplay.glow {
+  z-index:10;
+  filter:brightness(1.30) saturate(1.18)
+    drop-shadow(0 0 18px rgba(255,236,92,1))
+    drop-shadow(0 0 40px rgba(255,194,20,.78)) !important;
+}
+#shopBooster5Hit:focus-visible,
+#shopBooster3Hit:focus-visible {
+  box-shadow:inset 0 0 0 4px #fff,0 0 28px rgba(255,255,255,.9) !important;
+}
+#shopStarterHit:focus-visible {
+  box-shadow:inset 0 0 0 4px #ffe34f,0 0 28px rgba(255,220,55,.92) !important;
+}
+
+/* Money Exchange replaces the old Bronze/Silver wording and is roughly twice the visual footprint. */
+.shop-exchange-button {
+  width: 780px !important;
+  min-height: 190px !important;
+  bottom: 470px !important;
+  padding: 22px 30px !important;
+  border-width: 4px !important;
+  font: 900 38px/1 Arial Black,Arial,sans-serif !important;
+  letter-spacing: .09em !important;
+  color:#fff0b5 !important;
+}
+
+/* Card modal: ownership/deck counts sit immediately after rank and above card name. */
+.card-modal-topline {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.card-ownership {
+  display:inline-block;
+  padding:8px 14px;
+  border:2px solid rgba(255,222,121,.72);
+  background:rgba(0,0,0,.86);
+  color:#fff0ad;
+  font:1000 26px/1 Arial Black,Arial,sans-serif;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+  box-shadow:inset 0 0 14px rgba(255,210,80,.08);
+}
+.card-ownership[hidden] { display:none !important; }
+.card-modal-copy h2 { margin-top:16px !important; }

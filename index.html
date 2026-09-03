@@ -36,6 +36,7 @@
         <div class="menu-audio-controls" aria-label="Audio controls">
           <label><span>MUSIC</span><input id="musicVolume" type="range" min="0" max="100" step="1" value="55"><b id="musicVolumeValue">55%</b></label>
           <label><span>SOUND</span><input id="sfxVolume" type="range" min="0" max="100" step="1" value="75"><b id="sfxVolumeValue">75%</b></label>
+          <button id="volumeToggleBtn" class="volume-toggle-button" type="button" aria-pressed="false">VOLUME: ON</button>
         </div>
       </div>
 
@@ -178,7 +179,7 @@
       </header>
 
       <div class="blueprint-currency shop-currency"><span>BRONZE</span><b id="merchantBronze">0</b><small>SILVER <i id="merchantSilver">0</i></small></div>
-      <button id="shopExchangeBtn" class="shop-exchange-button" type="button">BRONZE ⇄ SILVER</button>
+      <button id="shopExchangeBtn" class="shop-exchange-button" type="button">MONEY EXCHANGE</button>
 
       <section class="shop-stock-panel" aria-label="Stocked cards">
         <div class="blueprint-label"><span>STOCKED CARDS</span><small>NEW IN <b id="merchantTimer">5:00</b></small></div>
@@ -355,7 +356,10 @@
       <div class="card-modal-box" role="dialog" aria-modal="true" aria-labelledby="cardModalName">
         <img id="cardModalImg" src="" alt="">
         <div class="card-modal-copy">
-          <span id="cardModalRank" class="rank-tag">BRONZE</span>
+          <div class="card-modal-topline">
+            <span id="cardModalRank" class="rank-tag">BRONZE</span>
+            <span id="cardModalOwnership" class="card-ownership" hidden>OWNED ×0 • IN DECK 0</span>
+          </div>
           <h2 id="cardModalName">CARD NAME</h2>
           <div id="cardModalMeta" class="card-meta"></div>
           <p id="cardModalText"></p>

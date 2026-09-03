@@ -1,0 +1,11 @@
+RPCG MOBILE ADVENTURE - V9 UI / SHOP / AUDIO UPDATE
+
+- Added master VOLUME: ON/OFF button beneath Music and Sound sliders.
+  Sliders keep their saved percentages while muted and restore those levels when turned back on.
+- Shop shelf hover/focus colors:
+  * 5-card booster = white highlight
+  * 3-card booster = white highlight
+  * Starter decks = yellow highlight
+- Renamed BRONZE ⇄ SILVER button to MONEY EXCHANGE and enlarged it substantially.
+- Card detail modal now places OWNED and IN DECK immediately after the rank, above the card name.
+  Ownership/deck counts are larger and bolder for equipment/deck inspection.
