@@ -1,0 +1,131 @@
+/* RPCG Adventure Mode V2 - connected overlay for the existing 1080x1920 mobile build. */
+.adventure-overlay,
+.adventure-screen {
+  position:absolute;
+  inset:0;
+  z-index:900;
+  display:none;
+  width:1080px;
+  height:1920px;
+  overflow:hidden;
+  color:#fff;
+}
+.adventure-overlay.show { display:flex; align-items:center; justify-content:center; }
+.adventure-screen.show { display:block; }
+.adventure-overlay { background:rgba(0,0,0,.82); backdrop-filter:blur(5px); }
+.adventure-kicker { color:#ffe29a; font:900 22px/1 Arial,sans-serif; letter-spacing:.18em; text-transform:uppercase; }
+
+.battle-mode-box {
+  width:900px;
+  padding:54px;
+  border:4px solid #d8a842;
+  background:linear-gradient(180deg,#171107,#050505 68%);
+  box-shadow:0 0 70px rgba(216,168,66,.34), inset 0 0 55px rgba(0,0,0,.72);
+  text-align:center;
+}
+.battle-mode-box h1 { margin:16px 0 38px; color:#fff0c5; font:900 72px/.95 Georgia,serif; }
+.battle-mode-choice {
+  width:100%; min-height:250px; margin:0 0 24px; padding:34px 40px;
+  border:3px solid rgba(216,168,66,.74); background:linear-gradient(135deg,rgba(28,21,10,.96),rgba(3,3,3,.98));
+  color:#fff; text-align:left; box-shadow:inset 0 0 42px rgba(0,0,0,.66),0 14px 26px rgba(0,0,0,.46);
+}
+.battle-mode-choice span { display:block; color:#fff2c6; font:900 53px/1 Georgia,serif; }
+.battle-mode-choice small { display:block; margin-top:16px; color:#d2c4a2; font-size:24px; line-height:1.35; }
+.battle-mode-choice b { display:block; margin-top:18px; color:#8df383; font:900 19px/1 Arial,sans-serif; letter-spacing:.08em; }
+.battle-mode-choice.endless-choice { border-color:#a95a43; }
+.battle-mode-choice:disabled { filter:grayscale(.75) brightness(.55); cursor:not-allowed; }
+.battle-mode-choice:not(:disabled):hover,
+.battle-mode-choice:not(:disabled):focus-visible { border-color:#fff0a0; filter:brightness(1.15); box-shadow:0 0 26px rgba(255,218,102,.62),inset 0 0 42px rgba(255,216,116,.08); }
+.adventure-back,
+.adventure-leave {
+  min-height:78px; padding:0 28px; border:3px solid #d8a842; background:rgba(0,0,0,.84); color:#ffe8a4;
+  font:900 25px/1 Arial,sans-serif; letter-spacing:.06em; text-transform:uppercase;
+}
+
+.adventure-screen { background:#050403; }
+.adventure-map-art {
+  position:absolute; inset:0; z-index:1;
+  background-repeat:no-repeat; background-position:center center; background-size:cover;
+  transform:scale(1.04); filter:brightness(.70) saturate(.92) contrast(1.08);
+}
+.adventure-map-art[data-area="1"] { background-position:54% 80%; }
+.adventure-map-art[data-area="2"] { background-position:52% 50%; }
+.adventure-map-art[data-area="3"] { background-position:48% 17%; filter:brightness(.64) saturate(.92) contrast(1.12); }
+.adventure-map-shade {
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.72),rgba(0,0,0,.14) 18%,rgba(0,0,0,.06) 72%,rgba(0,0,0,.82)),radial-gradient(circle at center,transparent 40%,rgba(0,0,0,.52));
+}
+.adventure-map-header {
+  position:absolute; z-index:10; left:55px; right:55px; top:50px; min-height:148px;
+  padding:22px 30px; border:2px solid rgba(216,168,66,.76); background:rgba(0,0,0,.82); text-align:center;
+}
+.adventure-map-header h1 { margin:8px 0 5px; color:#fff2c4; font:900 58px/1 Georgia,serif; }
+#adventureProgressText { color:#d8c38e; font:900 18px/1 Arial,sans-serif; letter-spacing:.11em; }
+.adventure-route { position:absolute; z-index:12; left:60px; right:60px; top:215px; bottom:260px; }
+.adventure-node {
+  position:absolute; width:112px; min-height:112px; transform:translate(-50%,-50%); padding:8px;
+  border:4px solid #ffe58a; border-radius:50%; background:radial-gradient(circle,#4c2d0b,#080604 70%); color:#fff4bf;
+  box-shadow:0 0 0 7px rgba(0,0,0,.48),0 0 32px rgba(255,208,76,.70); text-align:center;
+}
+.adventure-node i { display:block; font-style:normal; font-size:48px; line-height:1; }
+.adventure-node span {
+  position:absolute; left:50%; top:112px; min-width:170px; transform:translateX(-50%); padding:7px 10px;
+  border:1px solid rgba(255,228,135,.7); background:rgba(0,0,0,.88); color:#fff0b5;
+  font:900 15px/1 Arial,sans-serif; letter-spacing:.07em; white-space:nowrap;
+}
+.adventure-node.current { animation:adventure-node-pulse 1.15s ease-in-out infinite alternate; cursor:pointer; }
+.adventure-node.complete { width:70px; min-height:70px; border-width:3px; background:#201a0b; color:#e6c767; box-shadow:0 0 14px rgba(222,183,70,.38); opacity:.84; }
+.adventure-node.complete i { font-size:30px; }
+.adventure-node.complete span { display:none; }
+.adventure-node.type-camp { border-color:#7be27d; box-shadow:0 0 0 7px rgba(0,0,0,.48),0 0 34px rgba(98,224,101,.63); }
+.adventure-node.type-treasure { border-color:#f5e69c; }
+.adventure-node.type-cave { border-color:#e38855; }
+.adventure-node.type-dungeon,
+.adventure-node.type-boss { border-color:#ff8067; box-shadow:0 0 0 7px rgba(0,0,0,.48),0 0 38px rgba(255,76,46,.68); }
+@keyframes adventure-node-pulse { to { transform:translate(-50%,-50%) scale(1.10); filter:brightness(1.22); } }
+.adventure-node-info {
+  position:absolute; z-index:20; left:70px; right:70px; bottom:120px; min-height:105px; display:flex; align-items:center; gap:22px;
+  padding:18px 24px; border:2px solid rgba(216,168,66,.72); background:rgba(0,0,0,.87); box-shadow:0 10px 28px rgba(0,0,0,.62);
+}
+.adventure-node-info b { color:#ffe197; font:900 25px/1 Georgia,serif; text-transform:uppercase; }
+.adventure-node-info span { color:#ddd0b0; font-size:19px; line-height:1.3; }
+.adventure-leave { position:absolute; z-index:25; left:70px; bottom:28px; width:260px; }
+.adventure-test-note { position:absolute; z-index:25; right:70px; bottom:49px; color:#9e947b; font:900 12px/1 Arial,sans-serif; letter-spacing:.07em; }
+
+.adventure-room-box {
+  width:880px; padding:50px; border:4px solid #d8a842; background:linear-gradient(180deg,#171107,#050505 72%); box-shadow:0 0 70px rgba(216,168,66,.34); text-align:center;
+}
+.adventure-room-box h2 { margin:16px 0 34px; color:#fff0c4; font:900 62px/1 Georgia,serif; }
+.treasure-choice-area { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.treasure-choice {
+  min-height:340px; padding:28px; border:3px solid #d8a842; background:linear-gradient(180deg,#41270f,#0a0805); color:#fff;
+}
+.treasure-choice.silver { border-color:#dde7ef; background:linear-gradient(180deg,#26323d,#090b0e); }
+.treasure-choice span { display:block; color:#ffe3a0; font:900 29px/1 Georgia,serif; }
+.treasure-choice b { display:block; margin:24px 0; color:#fff5cc; font:900 36px/1 Georgia,serif; }
+.treasure-choice small { color:#d6c9aa; font-size:19px; line-height:1.3; }
+.treasure-reveal { display:none; min-height:360px; align-content:center; justify-items:center; gap:24px; }
+.treasure-reveal.show { display:grid; }
+.treasure-bronze-reveal span,
+.treasure-card-reveal span { display:block; color:#e0c477; font:900 20px/1 Arial,sans-serif; letter-spacing:.12em; }
+.treasure-bronze-reveal b { display:block; margin-top:20px; color:#ffe89d; font:900 90px/1 Georgia,serif; }
+.treasure-card-reveal img { display:block; width:270px; height:405px; margin:18px auto; object-fit:contain; filter:drop-shadow(0 0 26px rgba(225,237,255,.7)); }
+.treasure-card-reveal b { color:#f4f7fa; font:900 34px/1 Georgia,serif; }
+.adventure-continue { min-width:320px; min-height:86px; border:3px solid #fff0a0; background:linear-gradient(#fff0a5,#d8a842 58%,#8d5917); color:#1b1004; font:900 28px/1 Arial,sans-serif; }
+.complete-box p { color:#d7c9aa; font-size:24px; }
+
+.adventure-battle-badge {
+  position:absolute; z-index:95; left:44px; top:50px; min-width:195px; padding:10px 14px;
+  border:2px solid #ffe08c; background:rgba(0,0,0,.83); color:#ffe7a3; text-align:left;
+  box-shadow:0 0 16px rgba(216,168,66,.24);
+}
+.adventure-battle-badge b { display:block; font:900 15px/1 Arial,sans-serif; letter-spacing:.12em; }
+.adventure-battle-badge span { display:block; margin-top:6px; color:#fff; font:900 13px/1 Arial,sans-serif; }
+.adventure-sim-win {
+  position:absolute; z-index:96; right:42px; top:52px; width:220px; min-height:58px; border:2px dashed #9ef28b;
+  background:rgba(4,33,8,.82); color:#aef69c; font:900 13px/1 Arial,sans-serif; letter-spacing:.06em;
+}
+#adventureScreen.show ~ * { }
+#battleResult .result-card.adventure-result-card .two-actions { display:block !important; }
+#battleResult .result-card.adventure-result-card #resultMenuBtn { display:none !important; }
+#battleResult .result-card.adventure-result-card #fightAgainBtn { width:100%; min-height:100px; font-size:31px; }

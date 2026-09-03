@@ -1,0 +1,18 @@
+RPCG MOBILE ADVENTURE - KNIGHT MOVES V5
+
+Combat presentation fixes in this build:
+- Removed the battle message box from the HTML entirely.
+- setBattleMessage() is now a compatibility no-op, so no player/enemy prompt banner can reappear.
+- Knight blue impact FX is shifted toward the enemy and layered UNDER the Knight action sprite.
+- Layer order during Knight cinematics: enemy (z7), blue impact FX (z8), Knight action art (z9).
+  This lets the blue impact cover the enemy while the Knight remains visually in front of it.
+- Sword & Shield sequence remains: setup -> combo3 -> Shield Block -> hold Shield Block pose.
+- Shield Block and Sword & Shield both hold the block pose until the next Skill Phase.
+- Shield Block pose shakes if the blocked enemy attack lands while it is active.
+- Added hard-CC recovery protection:
+  * Losing a turn to STUN grants recovery protection.
+  * Losing a Skill Phase grants recovery protection.
+  * Recovery protection blocks chained STUN or chained Skill Phase loss until the hero reaches the next playable Skill Phase.
+  * The protection clears once a playable Skill Phase is reached.
+
+This is intended to prevent Goblin King / Executioner's Swing lock loops while preserving both mechanics individually.

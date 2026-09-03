@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>RPCG — 1080×1920 Portrait Foundation V16</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="adventure.css">
+</head>
+<body>
+  <div id="rotateNotice" aria-hidden="true"></div>
+
+  <main id="game" data-screen="menu" aria-label="RPCG portrait card game">
+    <section id="menuScreen" class="screen active menu-screen" data-screen="menu" aria-label="Main menu">
+      <img class="screen-bg" src="assets/backgrounds/menu_mobile.png" alt="">
+      <div class="screen-shade menu-shade"></div>
+
+      <div class="menu-brand"><img id="menuForgeLogo" src="assets/ui/rpcg_forge_logo.png" alt="RPCG forged emblem"></div>
+
+      <header class="menu-status">
+        <div id="menuHeroChip" class="hero-chip">
+          <img id="menuHeroPortrait" src="assets/heroes/knight_card.webp" alt="Knight">
+          <div><b id="menuHeroName">KNIGHT</b><span>LV. <i id="menuHeroLevel">1</i></span></div>
+        </div>
+        <div class="menu-bronze"><span>BRONZE</span><b id="menuBronze">502</b></div>
+        <div class="menu-silver"><span>SILVER</span><b id="menuSilver">0</b></div>
+      </header>
+
+      <div class="menu-hero-panel">
+        <img id="menuActiveHeroCard" src="assets/heroes/knight_card.webp" alt="Knight hero card">
+        <div class="menu-active-copy"><span>ACTIVE HERO</span><h2 id="menuActiveHeroName">BRONZE<br>KNIGHT</h2></div>
+        <button class="change-deck-button" type="button" data-go="equipment">CHANGE DECK</button>
+        <div class="menu-audio-controls" aria-label="Audio controls">
+          <label><span>MUSIC</span><input id="musicVolume" type="range" min="0" max="100" step="1" value="55"><b id="musicVolumeValue">55%</b></label>
+          <label><span>SOUND</span><input id="sfxVolume" type="range" min="0" max="100" step="1" value="75"><b id="sfxVolumeValue">75%</b></label>
+        </div>
+      </div>
+
+      <nav class="menu-grid" aria-label="Game destinations">
+        <button class="menu-tile battle" type="button" data-go="battle"><b>BATTLE</b></button>
+        <button class="menu-tile equipment" type="button" data-go="equipment"><b>EQUIP</b></button>
+        <button class="menu-tile forge" type="button" data-go="forge"><b>FORGE</b></button>
+        <button class="menu-tile merchant" type="button" data-go="merchant"><b>SHOP</b></button>
+        <button class="menu-tile heal" type="button" data-go="heal"><b>HEAL</b></button>
+      </nav>
+
+      <div class="menu-runtime-data" aria-hidden="true">
+        <i id="menuDeckCount">0</i><i id="menuOwnedCount">0</i>
+        <button id="resetDemoBtn" type="button" tabindex="-1">Reset Demo</button>
+      </div>
+    </section>
+
+    <section id="healScreen" class="screen heal-screen" data-screen="heal" aria-label="Healer recovery room">
+      <img class="screen-bg heal-room-bg" src="assets/backgrounds/healers_mobile.jpg" alt="Healers recovery room">
+      <div class="heal-room-vignette"></div>
+      <button class="heal-back" type="button" data-go="menu">← BACK</button>
+      <div class="heal-room-copy">
+        <b>DECK RECOVERY</b>
+        <span>1 deck heals in 30 seconds • a second active deck takes 60 seconds</span>
+      </div>
+      <div id="healStations" class="heal-stations" aria-label="Recovery beds"></div>
+
+      <div id="healPicker" class="overlay picker-overlay heal-picker" aria-hidden="true">
+        <div class="picker-box heal-picker-box" role="dialog" aria-modal="true" aria-labelledby="healPickerTitle">
+          <span class="eyebrow">HEALERS</span>
+          <h2 id="healPickerTitle">CHOOSE A DECK TO RECOVER</h2>
+          <p>Recovery restores the hero deck to full Health and Mana.</p>
+          <div id="healPickerGrid" class="heal-picker-grid"></div>
+          <button id="healPickerClose" class="gold-button" type="button">BACK</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="battleScreen" class="screen battle-screen" data-screen="battle" aria-label="Battle">
+      <img class="screen-bg battle-bg" src="assets/backgrounds/battle_mobile.png" alt="">
+      <div class="battle-vignette"></div>
+
+      <div class="enemy-bars">
+        <div class="enemy-name" id="enemyName">WOLF LV. 1</div>
+        <span class="enemy-status" id="enemyStatusText">NO STATUS</span>
+        <div class="battle-meter"><i class="hp" id="enemyHpFill"></i><span>HEALTH</span><b id="enemyHpText">42 / 42</b></div>
+        <div class="battle-meter"><i class="mp" id="enemyMpFill"></i><span>MANA</span><b id="enemyMpText">12 / 12</b></div>
+        <div class="enemy-study-row">
+          <button id="studyEnemyBtn" type="button">STUDY ENEMY</button>
+          <div id="battleProgress" class="battle-progress">CAVE STREAK 0/5 • BOSS 0/5</div>
+        </div>
+        <div id="studyForecast" class="study-forecast" aria-live="polite"></div>
+      </div>
+
+      <img id="battleHero" class="battle-unit hero" src="assets/characters/knight.webp" alt="Knight">
+      <img id="knightActionSprite" class="knight-action-sprite" src="" alt="" aria-hidden="true">
+      <img id="knightImpactFx" class="knight-impact-fx" src="" alt="" aria-hidden="true">
+      <img id="battleEnemy" class="battle-unit enemy" src="assets/enemies/wolf_battle.webp" alt="Wolf">
+      <div id="battlePhaseSplash" class="battle-phase-splash">BOOST PHASE</div>
+      <div id="encounterSplash" class="encounter-splash" aria-hidden="true"><span>AVENGER ENCOUNTER</span><b id="encounterSplashName">AVENGER WOLF</b><i id="encounterSplashLevel">LV. 11</i></div>
+      <div id="battleEffectLayer" class="battle-effect-layer" aria-hidden="true"></div>
+      <div id="battleCardFx" class="battle-card-fx" aria-hidden="true"><img id="battleCardFxImg" src="" alt=""><b id="battleCardFxName"></b><i id="battleCardFxSlash"></i></div>
+
+      <div id="battleHand" class="battle-hand" aria-label="Battle hand"></div>
+
+      <div class="player-bars">
+        <span id="heroStatusText" class="hero-status">NO STATUS</span>
+        <div class="battle-meter"><i class="hp" id="heroHpFill"></i><span id="heroHpLabel">HEALTH</span><b id="heroHpText">120 / 120</b></div>
+        <div class="battle-meter"><i class="mp" id="heroMpFill"></i><span id="heroMpLabel">MANA</span><b id="heroMpText">50 / 50</b></div>
+      </div>
+
+      <button id="battleMenuBtn" class="battle-bottom-button escape" type="button">ESCAPE</button>
+      <div class="battle-phase-actions">
+        <button id="skipBoostBtn" class="battle-bottom-button" type="button">SKIP BOOST</button>
+        <button id="skipAttackBtn" class="battle-bottom-button" type="button">SKIP SKILL</button>
+      </div>
+      <button id="endTurnBtn" class="battle-bottom-button end" type="button">END TURN</button>
+
+      <div class="battle-runtime-data" aria-hidden="true">
+        <i id="turnNumber">1</i><i id="drawCount">0</i><i id="discardCount">0</i><i id="handHint">Play a Boost Card</i>
+        <div id="breakPips"><i></i><i></i><i></i><i></i></div>
+        <div id="phaseTabs"><div data-phase="draw"></div><div data-phase="tactics"></div><div data-phase="attack"></div><div data-phase="end"></div></div>
+        <button id="clearLogBtn" type="button" tabindex="-1">Clear</button><div id="battleLog"></div>
+      </div>
+
+      <div id="battleResult" class="overlay result-overlay" aria-hidden="true">
+        <div class="result-card">
+          <span class="eyebrow">ENCOUNTER COMPLETE</span>
+          <h2 id="resultTitle">VICTORY</h2>
+          <img src="assets/characters/knight_portrait.webp" alt="Knight">
+          <p id="resultCopy">The road is clear.</p>
+          <div id="resultRewards" class="result-rewards"></div>
+          <div class="two-actions">
+            <button id="resultMenuBtn" class="gold-button" type="button">MENU</button>
+            <button id="fightAgainBtn" class="gold-button primary" type="button">FIGHT AGAIN</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="levelUpOverlay" class="level-up-overlay" aria-hidden="true">
+        <div class="level-up-card">
+          <span>LEVEL UP</span>
+          <h2>LEVEL <b id="levelUpLevel">2</b></h2>
+          <div class="level-up-stat"><i>MAX HEALTH</i><b id="levelUpHp">120 → 132</b></div>
+          <div class="level-up-stat"><i>MAX MANA</i><b id="levelUpMp">50 → 51</b></div>
+          <div class="level-up-stat"><i>CARD SCALING</i><b>LEVEL BONUS INCREASED</b></div>
+          <div class="level-up-xp"><span>XP TO NEXT LEVEL</span><b id="levelUpXp">0 / 200</b><div><i id="levelUpXpFill"></i></div></div>
+          <button id="levelUpContinue" class="gold-button primary" type="button">CONTINUE</button>
+        </div>
+      </div>
+
+      <div id="steadyOverlay" class="overlay steady-overlay" aria-hidden="true">
+        <div class="steady-box" role="dialog" aria-modal="true" aria-labelledby="steadyTitle">
+          <span class="eyebrow">BOOST CARD</span>
+          <h2 id="steadyTitle">STEADY STANCE</h2>
+          <p>Choose exactly 2 cards to place on the bottom of your deck. Then draw 3.</p>
+          <div id="steadyChoices" class="steady-choices"></div>
+          <div class="two-actions">
+            <button id="steadyCancel" class="gold-button" type="button">CANCEL CARD</button>
+            <button id="steadyConfirm" class="gold-button primary" type="button" disabled>CONFIRM 0 / 2</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="merchantScreen" class="screen merchant-screen blueprint-screen" data-screen="merchant" aria-label="Card Shop">
+      <img class="screen-bg merchant-bg" src="assets/backgrounds/shop_mobile.png" alt="">
+      <img id="shopBooster5Display" class="shop-pack-overlay" src="assets/overlays/booster_5card.png" alt="Gold five-card booster packs">
+      <img id="shopStarterDisplay" class="shop-pack-overlay" src="assets/overlays/starter_decks.png" alt="Starter deck display">
+      <img id="shopBooster3Display" class="shop-pack-overlay" src="assets/overlays/booster_3card.png" alt="Three-card booster packs">
+      <button id="shopBooster5Hit" class="shop-product-hotspot booster-five" type="button" aria-label="Open 5-card booster pack options"></button>
+      <button id="shopStarterHit" class="shop-product-hotspot starter" type="button" aria-label="Open starter deck options"></button>
+      <button id="shopBooster3Hit" class="shop-product-hotspot booster-three" type="button" aria-label="Open 3-card booster pack options"></button>
+      <div class="blueprint-vignette"></div>
+      <div class="blueprint-grid"></div>
+
+      <header class="blueprint-title shop-title">
+        <h1>CARD SHOP</h1>
+        <p>BUY ROTATING BRONZE CARDS, SELL SPARE CARDS</p>
+      </header>
+
+      <div class="blueprint-currency shop-currency"><span>BRONZE</span><b id="merchantBronze">0</b><small>SILVER <i id="merchantSilver">0</i></small></div>
+      <button id="shopExchangeBtn" class="shop-exchange-button" type="button">BRONZE ⇄ SILVER</button>
+
+      <section class="shop-stock-panel" aria-label="Stocked cards">
+        <div class="blueprint-label"><span>STOCKED CARDS</span><small>NEW IN <b id="merchantTimer">5:00</b></small></div>
+        <div id="merchantStock" class="shop-stock-list"></div>
+        <button id="merchantBuySelected" class="mockup-action" type="button">BUY</button>
+      </section>
+
+      <section class="shop-sell-panel" aria-label="Sell a spare card">
+        <h2>SELL CARD</h2>
+        <button id="merchantSellSlot" class="merchant-sell-slot" type="button">
+          <span class="sell-placeholder">CHOOSE A CARD TO SELL</span>
+          <span class="sell-plus">＋</span>
+          <span class="sell-value">50 BRONZE</span>
+        </button>
+        <button id="merchantSellConfirm" class="mockup-action compact" type="button" disabled>SELL</button>
+      </section>
+
+      <button id="missionChest" class="mission-chest" type="button">
+        <span>OLD SUPPLIES</span><b>LOCAL MISSIONS</b><small>Open request board</small>
+      </button>
+
+      <button class="mockup-back" type="button" data-go="menu">← BACK</button>
+
+      <div id="shopProductOverlay" class="overlay shop-product-overlay" aria-hidden="true">
+        <div class="shop-product-box" role="dialog" aria-modal="true" aria-labelledby="shopProductTitle">
+          <div class="shop-product-heading">
+            <span class="eyebrow">MERCHANT STOCK</span>
+            <h2 id="shopProductTitle">SHOP ITEM</h2>
+            <p id="shopProductSubtitle"></p>
+          </div>
+          <div id="shopProductBody" class="shop-product-body"></div>
+          <div class="shop-product-footer">
+            <div class="shop-product-balance">
+              <span>YOUR BALANCE</span>
+              <b><i id="shopProductBronze">0</i> BRONZE</b>
+              <b><i id="shopProductSilver">0</i> SILVER</b>
+            </div>
+            <button id="shopProductClose" class="gold-button" type="button">BACK TO SHOP</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="sellPicker" class="overlay picker-overlay" aria-hidden="true">
+        <div class="picker-box" role="dialog" aria-modal="true" aria-labelledby="sellPickerTitle">
+          <h2 id="sellPickerTitle">CHOOSE A SPARE CARD</h2>
+          <p>Only copies outside the active deck can be sold.</p>
+          <div id="sellPickerGrid" class="picker-grid"></div>
+          <button id="sellPickerClose" class="gold-button" type="button">BACK</button>
+        </div>
+      </div>
+
+      <div id="missionOverlay" class="overlay picker-overlay" aria-hidden="true">
+        <div class="picker-box mission-picker" role="dialog" aria-modal="true" aria-labelledby="missionOverlayTitle">
+          <span class="eyebrow">OLD SUPPLIES AREA</span>
+          <h2 id="missionOverlayTitle">LOCAL MISSIONS</h2>
+          <div id="missionList" class="mission-list"></div>
+          <button id="missionOverlayClose" class="gold-button" type="button">BACK TO SHOP</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="equipmentScreen" class="screen equipment-screen blueprint-screen" data-screen="equipment" aria-label="Equipment and deck builder">
+      <img class="screen-bg equipment-bg" src="assets/backgrounds/equipment_mobile.png" alt="">
+      <div class="blueprint-vignette stronger"></div>
+      <div class="blueprint-grid"></div>
+
+      <header class="blueprint-title equipment-title">
+        <h1>EQUIPMENT</h1>
+        <p>EQUIP CARDS, TUNE DECK AND INSPECT THEM</p>
+      </header>
+
+      <div class="blueprint-currency equipment-currency"><span>BRONZE</span><b id="equipmentBronze">0</b><small>DECK <i id="equipmentDeckCount">0</i>/20</small></div>
+
+      <div id="equipmentHeroRail" class="equipment-hero-rail" aria-label="Hero decks">
+        <button type="button" class="locked" data-hero-filter="mage"><img src="assets/heroes/mage_card.webp" alt="Mage hero card"><span>MAGE</span></button>
+        <button type="button" class="selected" data-hero-filter="knight"><img src="assets/heroes/knight_card.webp" alt="Knight hero card"><span>KNIGHT</span></button>
+        <button type="button" class="locked" data-hero-filter="healer"><img src="assets/heroes/healer_card.webp" alt="Healer hero card"><span>HEALER</span></button>
+        <button type="button" class="locked" data-hero-filter="warrior"><img src="assets/heroes/warrior_card.webp" alt="Warrior hero card"><span>WARRIOR</span></button>
+      </div>
+
+      <section class="equipment-inventory-panel">
+        <div class="inventory-heading"><span id="equipmentHeroName">KNIGHT OWNED CARDS</span><b id="deckHealth" class="deck-health">READY</b></div>
+        <div class="inventory-sortbar">
+          <label>SORT<select id="equipmentSort"><option value="name">NAME</option><option value="mage">MAGE</option><option value="knight">KNIGHT</option><option value="warrior">WARRIOR</option><option value="healer">HEALER</option></select></label>
+          <label>RANK<select id="equipmentRankFilter"><option value="all">ALL</option><option value="bronze">BRONZE</option><option value="silver">SILVER</option><option value="gold">GOLD</option></select></label>
+          <label>TYPE<select id="equipmentTypeFilter"><option value="all">ALL</option><option value="boost">BOOST</option><option value="skill">SKILL</option><option value="finisher">FINISHER</option></select></label>
+        </div>
+        <div id="ownedCards" class="owned-grid"></div>
+        <div id="activeDeck" hidden></div>
+      </section>
+
+      <button class="mockup-back" type="button" data-go="menu">← BACK</button>
+    </section>
+
+    <section id="forgeScreen" class="screen forge-screen blueprint-screen" data-screen="forge" aria-label="Forge">
+      <img class="screen-bg forge-bg" src="assets/backgrounds/forge_mobile.png" alt="">
+      <div class="blueprint-vignette stronger"></div>
+      <div class="blueprint-grid"></div>
+
+      <header class="blueprint-title forge-title">
+        <h1>FORGE</h1>
+        <p>FORGE THREE MATCHING COPIES</p>
+      </header>
+
+      <div class="blueprint-currency forge-currency"><span>BRONZE</span><b id="forgeBronze">0</b><i id="forgeSilver" hidden>0</i></div>
+      <h2 class="forge-instruction">CLICK ON SPACE TO CHOOSE CARD.</h2>
+
+      <button id="forgeSlotButton" class="forge-slot-button" type="button" aria-label="Choose three matching cards">
+        <div class="forge-slots" id="forgeSlots"><div>＋</div><span>＋</span><div>＋</div><span>＋</span><div>＋</div></div>
+      </button>
+
+      <div id="forgePreview" class="forge-preview"><span>THE UPGRADED CARD<br>WILL APPEAR HERE</span></div>
+      <button id="forgeButton" class="mockup-action forge-merge" type="button" disabled>MERGE</button>
+      <p id="forgeHint" class="forge-protection">ACTIVE-DECK COPIES ARE PROTECTED</p>
+      <div id="forgeInventory" hidden></div>
+
+      <button class="mockup-back" type="button" data-go="menu">← BACK</button>
+
+      <div id="forgePicker" class="overlay picker-overlay" aria-hidden="true">
+        <div class="picker-box" role="dialog" aria-modal="true" aria-labelledby="forgePickerTitle">
+          <h2 id="forgePickerTitle">CHOOSE A CARD TO MERGE</h2>
+          <p>Choose a card with three spare matching copies.</p>
+          <div class="forge-sortbar">
+            <label>SORT<select id="forgeSort"><option value="name">NAME</option><option value="mage">MAGE</option><option value="knight">KNIGHT</option><option value="warrior">WARRIOR</option><option value="healer">HEALER</option></select></label>
+            <label>RANK<select id="forgeRankFilter"><option value="all">ALL</option><option value="bronze">BRONZE</option><option value="silver">SILVER</option></select></label>
+            <label>TYPE<select id="forgeTypeFilter"><option value="all">ALL</option><option value="boost">BOOST</option><option value="skill">SKILL</option><option value="finisher">FINISHER</option></select></label>
+          </div>
+          <div id="forgePickerGrid" class="picker-grid"></div>
+          <button id="forgePickerClose" class="gold-button" type="button">BACK</button>
+        </div>
+      </div>
+
+      <div id="forgeResult" class="overlay forge-result forge-fusion-overlay" aria-hidden="true">
+        <div class="forge-fusion-stage" role="dialog" aria-modal="true" aria-labelledby="forgeFusionTitle">
+          <div id="forgeFusionTitle" class="forge-fusion-title">FORGING CARDS</div>
+          <div class="forge-fusion-card c1"><img id="forgeSourceImg1" src="" alt="Source card"></div>
+          <div class="forge-fusion-card c2"><img id="forgeSourceImg2" src="" alt="Source card"></div>
+          <div class="forge-fusion-card c3"><img id="forgeSourceImg3" src="" alt="Source card"></div>
+          <div class="forge-fusion-orb" aria-hidden="true"></div>
+          <div class="forge-fusion-result">
+            <img id="forgeResultImg" src="" alt="Forged card">
+            <h2 id="forgeResultName">SILVER CARD CREATED</h2>
+          </div>
+          <button id="forgeResultClose" class="forge-fusion-continue" type="button">CONTINUE</button>
+        </div>
+      </div>
+    </section>
+
+
+
+    <div id="packRevealModal" class="pack-reveal-modal" aria-hidden="true">
+      <div class="pack-reveal-stage" role="dialog" aria-modal="true" aria-labelledby="packRevealTitle">
+        <div class="pack-reveal-title" id="packRevealTitle">BOOSTER REVEAL</div>
+        <img class="pack-reveal-pack" id="packRevealPackImg" src="" alt="Booster Pack">
+        <div class="pack-reveal-card-spread" id="packRevealCardSpread"></div>
+        <div class="pack-reveal-flash" id="packRevealFlash" aria-hidden="true"></div>
+        <div class="pack-reveal-hint" id="packRevealHint">CLICK EACH MYSTERY CARD TO REVEAL IT</div>
+        <div class="pack-reveal-actions">
+          <button class="gold-button" id="packRevealFinishBtn" type="button" disabled>BACK TO STORE</button>
+          <button class="gold-button primary" id="packRevealBuyAnotherBtn" type="button" disabled>BUY ANOTHER</button>
+        </div>
+      </div>
+    </div>
+
+    <nav id="bottomNav" class="bottom-nav" aria-label="Primary navigation">
+      <button type="button" data-go="menu"><span>⌂</span><b>MENU</b></button>
+      <button type="button" data-go="battle"><span>⚔</span><b>BATTLE</b></button>
+      <button type="button" data-go="merchant"><span>◈</span><b>SHOP</b></button>
+      <button type="button" data-go="equipment"><span>▣</span><b>EQUIP</b></button>
+      <button type="button" data-go="forge"><span>◆</span><b>FORGE</b></button>
+    </nav>
+
+    <div id="cardModal" class="overlay card-modal" aria-hidden="true">
+      <div class="card-modal-box" role="dialog" aria-modal="true" aria-labelledby="cardModalName">
+        <img id="cardModalImg" src="" alt="">
+        <div class="card-modal-copy">
+          <span id="cardModalRank" class="rank-tag">BRONZE</span>
+          <h2 id="cardModalName">CARD NAME</h2>
+          <div id="cardModalMeta" class="card-meta"></div>
+          <p id="cardModalText"></p>
+          <div class="card-modal-actions">
+            <button id="cardModalClose" class="gold-button" type="button">BACK</button>
+            <button id="cardModalSecondary" class="gold-button danger" type="button" hidden>REMOVE</button>
+            <button id="cardModalAction" class="gold-button primary" type="button">SELECT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirmModal" class="overlay confirm-modal" aria-hidden="true">
+      <div class="confirm-box" role="dialog" aria-modal="true">
+        <span class="eyebrow">CONFIRM</span>
+        <h2 id="confirmTitle">Are you sure?</h2>
+        <p id="confirmCopy"></p>
+        <div class="two-actions"><button id="confirmNo" class="gold-button" type="button">CANCEL</button><button id="confirmYes" class="gold-button primary" type="button">CONFIRM</button></div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+  </main>
+
+  <audio id="marketMusic" src="assets/audio/bazaar_market_loop.mp3" loop preload="auto"></audio>
+  <audio id="battleRhythmAudio" src="assets/audio/battle_rhythm_encounter.mp3" preload="auto"></audio>
+
+  <script>window.__RPCG_ENABLE_TESTS__ = true; window.__RPCG_FAST_TESTS__ = false;</script>
+  <script src="game.js"></script>
+  <script src="adventure.js"></script>
+</body>
+</html>

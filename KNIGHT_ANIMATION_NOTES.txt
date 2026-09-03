@@ -1,0 +1,76 @@
+RPCG KNIGHT MOVE ANIMATION PASS
+
+Current sequence timing (milliseconds after card presentation):
+
+ALL LISTED KNIGHT ATTACKS
+- Setup artwork: 1000 ms
+
+SWORD STRIKE
+- setup.png
+- combo2.png at 1000
+- damage resolves around 1210
+- returns to idle around 1580
+
+SWORD COMBO
+- setup.png
+- combo1.png at 1000
+- combo2.png at 1420
+- combo3.png at 1840
+- combo_effect.png flashes 3 times starting at 1910
+- damage resolves around 1950
+- returns to idle around 2520
+
+RISING SLASH
+- setup.png
+- rising_slash.png at 1000
+- rising_slash_effect.png at 1170
+- damage resolves around 1240
+- returns to idle around 1810
+
+EXECUTIONER'S SWING
+- setup.png
+- executioners_swing.png at 1000
+- special_effect.png + heavy screen shake at 1120
+- damage resolves around 1200
+- special art remains on-screen until about 1880
+
+SHIELD BASH
+- setup.png
+- shield_bash.png at 1000
+- effect resolves around 1260
+- returns to idle around 1660
+
+SHIELD BLOCK
+- setup.png
+- shield_block.png at 1000
+- block resolves around 1260
+- returns to idle around 1760
+
+SWORD & SHIELD
+- setup.png
+- shield_block.png at 1000
+- combo3.png at 1450
+- damage/guard resolves around 1660
+- returns to idle around 2060
+
+QUICK PLACEMENT TUNING
+styles.css -> search for:
+  KNIGHT CINEMATIC CARD MOVES
+
+Main placement variables:
+  --knight-action-left
+  --knight-action-top
+  --knight-action-height
+
+TIMING TUNING
+game.js -> search for:
+  playKnightSkillAnimation
+
+Assets are in:
+  assets/characters/knight_moves/
+
+V4 adjustments
+- Blue impact FX shifted 220px toward the enemy so the visual order is Knight -> blue impact -> enemy.
+- Battle intent text is hidden while hero/enemy action animations play.
+- Sword & Shield sequence is now setup -> combo3 -> shield block.
+- Sword & Shield holds the shield block pose until the next Skill Phase, same visual hold behavior as Shield Block.

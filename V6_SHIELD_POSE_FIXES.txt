@@ -1,0 +1,10 @@
+RPCG MOBILE ADVENTURE - KNIGHT MOVES V6
+
+Shield pose lifecycle fixes:
+- Shield Block now holds only through the enemy turn and returns to the normal Knight pose at the START of the player's next turn.
+- Sword & Shield uses the same lifecycle: combo3 -> Shield Block hold -> normal pose at the start of the next player turn.
+- Ending the turn early no longer allows the Shield Block artwork to persist into the next player turn.
+- Knight Shield Up now switches to the Shield Block pose when the Knight's turn ends and holds it for the full enemy turn.
+- Shield Up pose clears at the start of the player's next turn.
+- Enemy-turn safeguard ensures Shield Up still displays the block pose even when the Knight ended the turn through Study, a skipped phase, or another alternate turn-end path.
+- Existing Shield Block impact shake remains active while the pose is held.
