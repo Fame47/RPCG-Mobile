@@ -1,0 +1,5 @@
+V26 Opening Tuning
+- NERDY Games holds for 3 seconds, then collapses with a CRT/TV-out effect.
+- EMBARK renamed START, made smaller, simpler, and moved upward into the splash art gap.
+- Hammer strike still uses the separate hammer/base/spark pieces.
+- After impact, the complete supplied RPCG logo crossfades in and remains for the 2.5 second breathing zoom.

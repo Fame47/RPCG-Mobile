@@ -1,0 +1,14 @@
+V27
+- START moved to the middle of the splash screen and reduced in size.
+- Cleaned the hammer-to-full-logo handoff so the base/full-logo no longer overlap after the shake.
+- Adventure save version bumped to V4 so old bad routes cannot persist.
+- Every Area now generates a randomized guaranteed route with exactly:
+  * 4 normal battle nodes
+  * 2 Camp-or-Treasure choice nodes
+  * 1 Elite node
+  * 1 random Cave or Dungeon node
+  * 1 Area Boss
+- First choice is always after the first two normal fights.
+- Second choice appears only after three more combat nodes.
+- Elite always occurs after the first choice.
+- Cave/Dungeon always occurs after the Elite.

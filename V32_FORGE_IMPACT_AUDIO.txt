@@ -1,0 +1,5 @@
+V32 Forge Impact Audio
+- Added a metallic CLING sound at the exact hammer impact frame.
+- Uses Web Audio, so no external sound file is required.
+- Respects the existing SFX volume and master mute setting.
+- Plays simultaneously with the pyro burst and screen shake.

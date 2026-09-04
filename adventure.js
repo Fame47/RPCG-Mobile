@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const ADVENTURE_KEY = 'rpcgAdventureModeV3';
+  const ADVENTURE_KEY = 'rpcgAdventureModeV4';
   const CORE_SAVE_KEY = 'rpcgPortraitCardGameV3';
   const DEFAULT_BATTLE_BG = 'assets/backgrounds/battle_mobile.png';
   const CAVE_BG = 'assets/adventure/cave_bg.png';
@@ -190,7 +190,7 @@
       const raw = localStorage.getItem(ADVENTURE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      return parsed?.version === 3 ? parsed : null;
+      return parsed?.version === 4 ? parsed : null;
     } catch (_) {
       return null;
     }
@@ -200,6 +200,44 @@
     localStorage.setItem(ADVENTURE_KEY, JSON.stringify(state));
   }
 
+  function buildRandomAreaRoute(config) {
+    // Every area has the same guaranteed ingredients, but their middle order
+    // changes from run to run:
+    //   4 normal battles
+    //   2 player choice nodes (Camp or Treasure)
+    //   1 elite battle
+    //   1 Cave OR Dungeon
+    //   1 area boss
+    //
+    // The first choice is always after exactly two normal fights. The second
+    // choice cannot appear until three more combat nodes have been cleared.
+    // Elite is always after the first choice, and Cave/Dungeon is always after
+    // the Elite.
+    const chainType = Math.random() < .5 ? 'cave' : 'dungeon';
+    const tail = ['enemy', 'enemy', 'elite', chainType];
+    let ordered = tail;
+    let guard = 0;
+    do {
+      ordered = shuffle(tail);
+      guard += 1;
+    } while (ordered.indexOf('elite') > ordered.indexOf(chainType) && guard < 50);
+
+    // Safety fallback if randomization ever fails the constraint.
+    if (ordered.indexOf('elite') > ordered.indexOf(chainType)) {
+      ordered = ['enemy', 'elite', chainType, 'enemy'];
+    }
+
+    return [
+      'enemy',
+      'enemy',
+      'choice',
+      ...ordered.slice(0, 3),
+      'choice',
+      ordered[3],
+      'boss'
+    ];
+  }
+
   function buildAreaState(config) {
     return {
       zone: config.zone,
@@ -207,7 +245,7 @@
       mapAsset: config.mapAsset,
       boss: { ...config.boss },
       pools: JSON.parse(JSON.stringify(config.pools || {})),
-      nodes: config.nodes.map((type, index) => ({
+      nodes: buildRandomAreaRoute(config).map((type, index) => ({
         id: `z${config.zone}a${config.area}n${index + 1}`,
         type,
         enemyId: type === 'boss' ? config.boss.enemyId : ['enemy', 'strong', 'elite'].includes(type) ? pick((config.pools?.[type] || config.pools?.normal || ['wolf'])) : null,
@@ -220,7 +258,7 @@
 
   function createAdventure() {
     const state = {
-      version: 3,
+      version: 4,
       active: true,
       completed: false,
       area: 0,
@@ -497,7 +535,7 @@
       const meta = NODE_META[node.type];
       let detail = 'Tap the unlocked node to continue.';
       if (node.type === 'treasure') detail = 'Choose Bronze or one mystery Silver card.';
-      if (node.type === 'choice') detail = 'Choose CAMP to recover or TREASURE ROOM to keep pushing for rewards.';
+      if (node.type === 'choice') detail = 'Choose CAMP to recover or TREASURE ROOM to keep pushing for rewards. Two choice stops are guaranteed in every Area.';
       if (node.type === 'camp') detail = node.visited ? 'Recovery is in progress. Return to Camp to check the timer.' : 'Camp uses the same Healer recovery room and wait times.';
       if (node.type === 'cave') detail = 'A Cave is 2 fights back to back. Rewards are collected after fight 2 or on defeat.';
       if (node.type === 'dungeon') detail = 'A Dungeon is 3 fights back to back. Rewards are collected after fight 3 or on defeat.';

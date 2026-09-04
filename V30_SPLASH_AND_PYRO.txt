@@ -1,0 +1,5 @@
+V30 Splash + Hammer Pyro
+- Replaced the splash art with the corrected ROLL PLAYING / CARD GAME image.
+- Removed the HTML/CSS text overlay entirely.
+- Added a forge-style pyro burst to the hammer impact: radial flash plus outward sparks.
+- Existing hammer strike, shake, full-logo swap, and 2.5-second breathing zoom remain intact.
